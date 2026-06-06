@@ -1,12 +1,12 @@
 // src/app/features/chatbot/chatbot.component.ts
 // ─────────────────────────────────────────────────────────────────
-// CHATBOT ACTIONNABLE — The3Beez / SegmentIQ v5
-// Nouvelles fonctionnalités :
-//  • L'IA retourne du JSON structuré { message, action? }
-//  • Chaque réponse peut contenir un bouton d'action contextuel
-//  • 3 types d'actions : create_campaign, send_whatsapp, create_segment
-//  • Modale de confirmation avant exécution
-//  • Feedback inline dans le chat après action
+// ACTIONABLE CHATBOT — The3Beez / SegmentIQ v5
+// Features:
+//  • AI returns structured JSON { message, action? }
+//  • Each response can include a contextual action button
+//  • 3 action types: create_campaign, send_whatsapp, create_segment
+//  • Confirmation modal before execution
+//  • Inline feedback in chat after action
 // ─────────────────────────────────────────────────────────────────
 
 import {
@@ -238,7 +238,7 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
     }
 
     try {
-      // ── Appel API selon le type d'action ────────────────────────
+      // ── API call based on action type ──────────────────────────
       if (type === 'create_campaign') {
         // Ensure segment is always a non-empty string (AI sometimes omits it)
         const segmentName = params.segment || params['segment_focus'] || 'All Customers';
@@ -254,7 +254,7 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
           }),
         });
 
-        // Si le backend a retourné un ID, on met à jour l'objet poussé
+        // If backend returned an ID, update the pushed object
         let serverCampaign: any = null;
         try { serverCampaign = res.ok ? await res.json() : null; } catch {}
         if (serverCampaign?.id) {
@@ -280,14 +280,14 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
         });
       }
 
-      // Marque l'action comme effectuée dans le message
+      // Mark the action as done in the message
       this.messages.update(msgs =>
         msgs.map((m, i) =>
           i === modal.msgIndex ? { ...m, actionDone: true } : m
         )
       );
 
-      // Ajoute un message de confirmation dans le chat
+      // Add a confirmation message in the chat
       const confirmMsg = this.buildConfirmationMessage(modal.action);
       this.messages.update(msgs => [...msgs, {
         role: 'assistant',
@@ -295,7 +295,7 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
         timestamp: new Date(),
       }]);
 
-      // ── Navigation automatique vers Campaigns si create_campaign ──
+      // ── Auto-navigate to Campaigns after create_campaign ────────
       if (type === 'create_campaign') {
         this.nav.navigate('campaigns');
         setTimeout(() => { this.toggleChat(); }, 400);
@@ -404,12 +404,12 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
       const data = await response.json();
 
       // ── Parse structured response ──────────────────────────────
-      // Le backend peut retourner { response, action? } ou juste une string
+      // Backend may return { response, action? } or just a string
       let replyText: string;
       let action: ChatAction | undefined;
 
       if (data.action) {
-        // Réponse structurée avec action
+        // Structured response with action
         replyText = data.response ?? '';
         action = {
           type:   data.action.type,
@@ -418,7 +418,7 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
           params: data.action.params ?? {},
         };
       } else {
-        // Essaie de parser du JSON inséré dans la réponse texte (fallback)
+        // Try to parse JSON embedded in text response (fallback)
         const parsed = this.tryParseActionFromText(data.response ?? '');
         replyText = parsed.text;
         action    = parsed.action;
@@ -443,7 +443,7 @@ export class ChatbotComponent implements AfterViewChecked, OnInit, OnDestroy {
 
   // ── Parses action from text if backend wraps it in JSON block ────────────
   private tryParseActionFromText(text: string): { text: string; action?: ChatAction } {
-    // Cherche ```json { "action": ... } ``` dans la réponse
+    // Look for ```json { "action": ... }``` in the response
     const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
     if (!jsonMatch) return { text };
     try {
