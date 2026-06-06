@@ -1,0 +1,71 @@
+/* ── KPI STRIP ─────────────────────────────────────────────────────── */
+.kpi-strip {
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;
+}
+
+.kpi-card {
+  position:relative;overflow:hidden;
+  background:var(--card);
+  border:1px solid color-mix(in srgb, var(--kc) 22%, var(--bd));
+  border-radius:18px;
+  padding:16px 18px 14px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+  cursor:default;
+}
+.kpi-card:hover {
+  transform:translateY(-4px) scale(1.012);
+  box-shadow:0 8px 28px rgba(0,0,0,.10), 0 0 0 1.5px color-mix(in srgb, var(--kc) 50%, transparent);
+}
+.kc-glow {
+  position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle, var(--kg));
+  pointer-events:none;
+}
+.kc-top { display:flex;align-items:center;gap:10px;margin-bottom:12px; }
+.kc-icon-wrap {
+  width:38px;height:38px;border-radius:11px;
+  background:var(--ki);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.kc-icon { font-size:20px;line-height:1; }
+.kc-title-badge { display:flex;flex-direction:column;gap:4px;flex:1;min-width:0; }
+.kc-label {
+  font-size:13px;font-weight:700;color:var(--tx);
+  letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.kc-value {
+  font-size:26px;font-weight:900;font-family:'JetBrains Mono',monospace;
+  color:var(--tx);letter-spacing:-.04em;line-height:1;margin-bottom:4px;
+}
+.kc-unit {
+  font-size:10px;font-weight:700;color:var(--t3);
+  margin-left:4px;letter-spacing:.04em;vertical-align:middle;
+}
+.kc-sub {
+  font-size:10px;color:var(--kc);font-weight:600;
+  font-family:'JetBrains Mono',monospace;
+  opacity:.85;margin-bottom:8px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.kc-bar-track {
+  height:3px;border-radius:2px;background:var(--bg3,rgba(0,0,0,.06));
+  margin-top:10px;overflow:hidden;
+}
+.kc-bar-fill {
+  height:100%;border-radius:2px;
+  transition:width 1.4s cubic-bezier(.25,1,.5,1);
+  opacity:.7;
+}
+
+/* ── Chart cards ────────────────────────────────────── */
+.f52-card { padding: 14px 16px 10px; }
+.f52-ct { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.f52-ct-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.f52-ct-sub { font-size: 9.5px; color: var(--t4); font-style: italic; margin-top: 2px; }
+
+canvas { display: block; width: 100%; }
+
+@media (max-width: 1200px) { .kpi-strip { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px)  { .kpi-strip, .grid2 { grid-template-columns: 1fr; } }

@@ -1,0 +1,441 @@
+<div class="pg">
+
+    <!-- ══════════════════════════════════════════════════════ PAGE HEADER -->
+    <header class="ph">
+      <div class="ph-left">
+        <div class="ph-crumb">
+          <span class="ph-crumb-dot"></span>
+          <span>Admin</span>
+          <span class="ph-crumb-sep">/</span>
+          <span>Configuration</span>
+          <span class="ph-crumb-sep">/</span>
+          <span class="ph-crumb-active">K-Means</span>
+        </div>
+        <h1 class="ph-title">
+          K-Means Configuration
+          <span class="ph-title-k">K = {{ selectedK() }}</span>
+          @if (selectedK() !== currentK()) {
+            <span class="ph-title-pending">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Not Applied
+            </span>
+          }
+        </h1>
+        <p class="ph-desc">
+          Configure the number of clusters for the K-Means engine.
+          The 4 core segments <strong>VIP · Loyal · At Risk · Lost</strong> are active from K=4.
+          K=2→VIP+Loyal, K=3→+At Risk, K≥4→+Lost and beyond.
+        </p>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="ph-stats">
+        <div class="ph-stat">
+          <div class="ph-stat-val">{{ currentK() }}</div>
+          <div class="ph-stat-label">Active Segments</div>
+          <div class="ph-stat-dots">
+            @for (s of currentSegments(); track s.id) {
+              <span class="ph-stat-dot" [style.background]="s.color" [title]="s.name"></span>
+            }
+          </div>
+        </div>
+        <div class="ph-stat-div"></div>
+        <div class="ph-stat">
+          <div class="ph-stat-val">{{ insight().inertia }}</div>
+          <div class="ph-stat-label">Inertia (K={{ selectedK() }})</div>
+          <div class="ph-stat-bar">
+            <div class="ph-stat-bar-fill" [style.width.%]="(insight().inertia / 185) * 100" [style.background]="insight().labelColor"></div>
+          </div>
+        </div>
+        <div class="ph-stat-div"></div>
+        <div class="ph-stat">
+          <div class="ph-stat-val--chip" [style.color]="insight().labelColor" [style.background]="insight().labelColor + '1a'">{{ insight().label }}</div>
+          <div class="ph-stat-label">Selection Quality</div>
+          <div class="ph-stat-sil">
+            @for (i of [1,2,3,4,5]; track i) {
+              <span class="ph-sil-pip" [class.ph-sil-pip--on]="i <= insight().silhouette" [style.background]="i <= insight().silhouette ? insight().labelColor : undefined"></span>
+            }
+          </div>
+        </div>
+        <div class="ph-stat-div"></div>
+        <div class="ph-stat">
+          <div class="ph-stat-val ph-stat-val--sm">sklearn</div>
+          <div class="ph-stat-label">ML Engine</div>
+          <div class="ph-stat-stack">KMeans · StandardScaler</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════════════ ROW 1: K + ELBOW -->
+    <div class="row-top">
+
+      <!-- K selector -->
+      <section class="card">
+        <div class="card-head">
+          <div class="card-head-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <span class="card-head-title">Choose K</span>
+          <span class="card-head-sub">2 to 7 segments</span>
+          <span class="quality-chip quality-chip--{{ insight().grade }}">{{ insight().label }}</span>
+        </div>
+
+        <div class="k-grid">
+          @for (k of kOptions; track k) {
+            <button
+              class="kbtn"
+              [class.kbtn--active]="selectedK() === k"
+              [class.kbtn--current]="currentK() === k"
+              [class.kbtn--opt]="k === 4"
+              (click)="selectK(k)">
+              <span class="kbtn-num">{{ k }}</span>
+              <span class="kbtn-segs">
+                @for (s of getSegDots(k); track s.id) {
+                  <span class="kbtn-dot" [style.background]="s.color"></span>
+                }
+              </span>
+              @if (k === 4) { <span class="kbtn-opt-badge">★ opt</span> }
+              @if (currentK() === k && selectedK() !== k) {
+                <span class="kbtn-cur-badge">active</span>
+              }
+            </button>
+          }
+        </div>
+
+        <div class="qbar-row">
+          <span class="qbar-label">Silhouette</span>
+          <div class="qbar-track">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="qbar-seg" [class.qbar-seg--lit]="i <= insight().silhouette"
+                [style.background]="i <= insight().silhouette ? insight().labelColor : undefined"></div>
+            }
+          </div>
+          <span class="qbar-val">{{ ['','Very low','Low','Average','Good','Excellent'][insight().silhouette] }}</span>
+        </div>
+        <div class="use-case-row">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>{{ insight().useCase }}</span>
+        </div>
+      </section>
+
+      <!-- Elbow chart -->
+      <section class="card">
+        <div class="card-head">
+          <div class="card-head-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span class="card-head-title">Elbow Method</span>
+          <span class="card-head-sub">Inertia vs K</span>
+        </div>
+
+        <div class="elbow">
+          <div class="elbow-yaxis">
+            <span>185</span><span>100</span><span>57</span>
+          </div>
+          <div class="elbow-chart">
+            <svg class="elbow-line" viewBox="0 0 280 90" preserveAspectRatio="none">
+              <polyline
+                [attr.points]="elbowLinePoints()"
+                fill="none" stroke="var(--am)" stroke-width="1.5"
+                stroke-dasharray="3 2" opacity="0.4"/>
+              @for (pt of elbowDots(); track pt.x) {
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3"
+                  [attr.fill]="pt.active ? 'var(--am)' : 'transparent'"
+                  [attr.stroke]="pt.active ? 'var(--am)' : 'var(--bd3)'"
+                  stroke-width="1.5"/>
+              }
+            </svg>
+            <div class="elbow-bars">
+              @for (k of kOptions; track k) {
+                <div class="eb" [class.eb--active]="selectedK() === k" [class.eb--current]="currentK() === k" (click)="selectK(k)">
+                  <div class="eb-wrap">
+                    <div class="eb-bar"
+                      [style.height.%]="ELBOW_H[k]"
+                      [style.background]="selectedK() === k ? 'var(--am)' : currentK() === k ? 'rgba(224,120,32,.45)' : k === 4 ? 'rgba(224,120,32,.18)' : 'var(--bd3)'">
+                    </div>
+                  </div>
+                  <div class="eb-label">{{ k }}</div>
+                  @if (currentK() === k) { <div class="eb-cur">▲</div> }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="elbow-note">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ insight().note }}
+        </div>
+      </section>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ SEGMENT PREVIEW -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-head-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <span class="card-head-title">Segment Preview — K = {{ selectedK() }}</span>
+        @if (selectedK() < currentK()) {
+          <span class="diff-badge diff-badge--down">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            −{{ currentK() - selectedK() }} merged
+          </span>
+        } @else if (selectedK() > currentK()) {
+          <span class="diff-badge diff-badge--up">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            +{{ selectedK() - currentK() }} new
+          </span>
+        } @else {
+          <span class="diff-badge diff-badge--same">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Same as active model
+          </span>
+        }
+      </div>
+
+      <div class="segs-grid">
+        @for (seg of previewSegments(); track seg.id) {
+          <div class="seg" [style.--sc]="seg.color" [style.--sb]="seg.bg">
+            <div class="seg-stripe"></div>
+            <div class="seg-body">
+              <div class="seg-icon-wrap" [style.background]="seg.bg">{{ seg.icon }}</div>
+              <div class="seg-info">
+                <div class="seg-name" [style.color]="seg.color">{{ seg.name }}</div>
+                @if (seg.isNew) {
+                  <span class="seg-new-badge">+ New</span>
+                } @else {
+                  <span class="seg-core-badge">Core</span>
+                }
+              </div>
+            </div>
+            <p class="seg-desc">{{ seg.description }}</p>
+          </div>
+        }
+        @for (seg of removedSegments(); track seg.id) {
+          <div class="seg seg--removed">
+            <div class="seg-stripe" style="background: var(--bd3)"></div>
+            <div class="seg-body">
+              <div class="seg-icon-wrap" style="background:var(--bg2); opacity:.5">{{ seg.icon }}</div>
+              <div class="seg-info">
+                <div class="seg-name" style="color:var(--t4)">{{ seg.name }}</div>
+                <span class="seg-removed-badge">− Merged</span>
+              </div>
+            </div>
+            <p class="seg-desc" style="color:var(--t4); opacity:.7">Will be merged into an adjacent cluster.</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ BOTTOM ROW: APPLY + EXPORT -->
+    <div class="row-bottom">
+
+      <!-- Apply card -->
+      <section class="card apply-card" [class.apply-card--ready]="selectedK() !== currentK()">
+        <div class="apply-head">
+          <div class="apply-head-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <div>
+            <div class="apply-head-title">Apply Configuration</div>
+            <div class="apply-head-sub">Retrains the K-Means model with <strong>K&nbsp;=&nbsp;{{ selectedK() }}</strong></div>
+          </div>
+          @if (selectedK() !== currentK() && status() === 'idle') {
+            <div class="apply-arrow-hint">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--am)" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          }
+        </div>
+
+        <div class="apply-body">
+
+
+          @if (status() === 'loading') {
+            <div class="progress-block">
+              <div class="progress-meta">
+                <div class="progress-meta-left">
+                  <span class="progress-step-dot"></span>
+                  <span class="progress-label">{{ progressLabel() }}</span>
+                </div>
+                <span class="progress-pct">{{ progress() | number:'1.0-0' }}%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" [style.width.%]="progress()">
+                  <div class="progress-shine"></div>
+                </div>
+              </div>
+              <div class="progress-steps">
+                <div class="progress-step">
+                  <div class="progress-step-tick" [class.progress-step-tick--done]="progress() >= 18" [class.progress-step-tick--active]="progress() < 18">
+                    @if (progress() >= 18) { ✓ }
+                  </div>
+                  <span class="progress-step-name">Data</span>
+                </div>
+                <div class="progress-step">
+                  <div class="progress-step-tick" [class.progress-step-tick--done]="progress() >= 38" [class.progress-step-tick--active]="progress() >= 18 && progress() < 38">
+                    @if (progress() >= 38) { ✓ }
+                  </div>
+                  <span class="progress-step-name">Scale</span>
+                </div>
+                <div class="progress-step">
+                  <div class="progress-step-tick" [class.progress-step-tick--done]="progress() >= 60" [class.progress-step-tick--active]="progress() >= 38 && progress() < 60">
+                    @if (progress() >= 60) { ✓ }
+                  </div>
+                  <span class="progress-step-name">K-Means</span>
+                </div>
+                <div class="progress-step">
+                  <div class="progress-step-tick" [class.progress-step-tick--done]="progress() >= 78" [class.progress-step-tick--active]="progress() >= 60 && progress() < 78">
+                    @if (progress() >= 78) { ✓ }
+                  </div>
+                  <span class="progress-step-name">RFM</span>
+                </div>
+                <div class="progress-step">
+                  <div class="progress-step-tick" [class.progress-step-tick--done]="progress() >= 100" [class.progress-step-tick--active]="progress() >= 78 && progress() < 100">
+                    @if (progress() >= 100) { ✓ }
+                  </div>
+                  <span class="progress-step-name">Done</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="apply-actions">
+          <button class="btn-primary"
+            [class.btn-primary--reapply]="selectedK() === currentK()"
+            [disabled]="status() === 'loading'"
+            (click)="applyConfig()">
+            @if (status() === 'loading') {
+              <span class="btn-spinner"></span>
+              <span>Retraining K={{ selectedK() }}…</span>
+            } @else if (selectedK() !== currentK()) {
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Apply K = {{ selectedK() }}</span>
+            } @else {
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              <span>Re-apply K = {{ selectedK() }}</span>
+            }
+          </button>
+          @if (selectedK() !== 4) {
+            <button class="btn-ghost" [disabled]="status() === 'loading'" (click)="selectK(4)">
+              Reset to K = 4
+            </button>
+          }
+          @if (selectedK() !== currentK() && status() === 'idle') {
+            <div class="pending-notice">
+              <div class="pending-dot"></div>
+              K={{ currentK() }} → {{ selectedK() }}
+            </div>
+          }
+          </div>
+        </div>
+
+        @if (status() === 'success') {
+          <div class="feedback" [class.feedback--ok]="!isMock()" [class.feedback--mock]="isMock()">
+            <div class="feedback-icon">
+              @if (!isMock()) {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              }
+            </div>
+            <div>
+              @if (!isMock()) {
+                <strong>Retraining successful</strong> — K&nbsp;=&nbsp;{{ appliedK() }} is now active.
+                <span class="mock-hint" style="color:inherit;opacity:.75">
+                  Segments: {{ segmentNames() }}
+                </span>
+              } @else {
+                <strong>Configuration applied</strong> — K&nbsp;=&nbsp;{{ appliedK() }} active (demo mode).
+                <span class="mock-hint">
+                  Segments: {{ segmentNames() }}
+                </span>
+                <span class="mock-hint" style="opacity:.6">Backend offline — value saved locally.</span>
+              }
+            </div>
+          </div>
+        }
+        @if (status() === 'error') {
+          <div class="feedback feedback--err">
+            <div class="feedback-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div><strong>Error</strong> : {{ errorMsg() }}</div>
+          </div>
+        }
+      </section>
+
+      <!-- Export card -->
+      <section class="card export-card">
+        <div class="card-head">
+          <div class="card-head-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <span class="card-head-title">MongoDB Export</span>
+          <span class="card-head-sub">Download collections as CSV</span>
+          @if (exportStatus() !== 'idle') {
+            <span class="export-status-chip"
+              [class.export-status-chip--ok]="exportStatus() === 'success'"
+              [class.export-status-chip--err]="exportStatus() === 'error'">
+              @if (exportStatus() === 'success') {
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Downloaded
+              } @else {
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Error
+              }
+            </span>
+          }
+        </div>
+
+        <div class="export-grid">
+          @for (col of exportCollections; track col.key) {
+            <button
+              class="export-tile"
+              [class.export-tile--loading]="exportingKey() === col.key"
+              [class.export-tile--done]="lastExported() === col.key"
+              [disabled]="exportingKey() !== null"
+              (click)="exportCollection(col)">
+              <div class="export-tile-top">
+                <span class="export-tile-icon" [style.background]="col.bg">{{ col.icon }}</span>
+                @if (exportingKey() === col.key) {
+                  <span class="btn-spinner btn-spinner--sm"></span>
+                } @else if (lastExported() === col.key) {
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                } @else {
+                  <svg class="export-tile-dl" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                }
+              </div>
+              <div class="export-tile-name">{{ col.name }}</div>
+              <div class="export-tile-file">{{ col.filename }}</div>
+            </button>
+          }
+        </div>
+
+        <div class="export-footer">
+          <button class="btn-export-all" [disabled]="exportingKey() !== null" (click)="exportAll()">
+            @if (exportingKey() === '__all__') {
+              <span class="btn-spinner btn-spinner--sm btn-spinner--white"></span>
+              Exporting…
+            } @else {
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export all — 4 CSV files
+            }
+          </button>
+          <span class="export-hint">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v6c0 2.21 4.48 4 10 4s10-1.79 10-4v-6"/></svg>
+            Direct stream from MongoDB
+          </span>
+        </div>
+
+        @if (exportErrorMsg()) {
+          <div class="feedback feedback--err" style="margin-top:10px">
+            <div class="feedback-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div><strong>Error export</strong> : {{ exportErrorMsg() }}</div>
+          </div>
+        }
+      </section>
+
+    </div>
+  </div>

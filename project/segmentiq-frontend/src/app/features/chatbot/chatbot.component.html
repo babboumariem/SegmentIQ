@@ -1,0 +1,404 @@
+<!-- ── FAB ──────────────────────────────────────────────────────── -->
+    <button class="chat-fab"
+      (click)="toggleChat()"
+      [class.active]="isOpen()"
+      [class.panel-open]="isOpen()"
+      [class.panel-expanded]="isOpen() && isExpanded()"
+      title="SegmentIQ Assistant">
+      <div class="fab-icon">
+        @if (isOpen()) {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        } @else {
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        }
+      </div>
+      @if (!isOpen() && unreadCount() > 0) {
+        <div class="fab-badge">{{ unreadCount() }}</div>
+      }
+      <div class="fab-pulse"></div>
+    </button>
+
+    @if (isOpen()) {
+      <div class="chat-panel" [class.expanded]="isExpanded()">
+
+        <!-- ── Header ─────────────────────────────────────────────── -->
+        <div class="cp-header">
+          <div class="cp-h-left">
+            <div class="cp-avatar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+              </svg>
+            </div>
+            <div>
+              <div class="cp-title">SegmentIQ AI</div>
+              <div class="cp-status">
+                <div class="cp-dot" [class.loading]="isLoading()"></div>
+                <span>{{ isLoading() ? 'Thinking...' : 'Connected · actions enabled' }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="cp-h-right">
+            @if (alertCount() > 0) {
+              <button class="cp-btn cp-btn--alert" (click)="toggleAlertPanel()" [class.active]="showAlertPanel()" title="Active alerts">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="alert-badge-inline">{{ alertCount() }}</span>
+              </button>
+            }
+            <button class="cp-btn" (click)="toggleSessions()" [class.active]="showSessions()" title="History">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </button>
+            <button class="cp-btn" (click)="toggleExpand()" title="Expand">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 3 21 3 21 9"/>
+                <polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+            <button class="cp-btn" (click)="newChat()" title="New conversation">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+            <button class="cp-btn cp-btn--close" (click)="toggleChat()" title="Close">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Alert panel ──────────────────────────────────────────── -->
+        @if (showAlertPanel() && activeAlerts().length > 0) {
+          <div class="cp-alert-panel">
+            <div class="cap-header">
+              <div class="cap-title-row">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="cap-title">Active alerts ({{ alertCount() }})</span>
+              </div>
+              <button class="cap-close" (click)="toggleAlertPanel()">×</button>
+            </div>
+            @for (alert of activeAlerts(); track alert._id) {
+              <div class="cap-alert" [class.critical]="alert.severity === 'critical'" [class.warning]="alert.severity === 'warning'">
+                <div class="cap-alert-header">
+                  <span class="cap-severity-badge" [class.critical]="alert.severity === 'critical'">
+                    {{ alert.severity === 'critical' ? '🔴 Critical' : '🟡 Warning' }}
+                  </span>
+                  <span class="cap-seg-name">{{ alert.segment }}</span>
+                </div>
+                <div class="cap-stats">
+                  <span class="cap-stat">
+                    <span class="cap-stat-label">Before</span>
+                    <span class="cap-stat-val">{{ alert.baseline_pct.toFixed(1) }}%</span>
+                  </span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                  <span class="cap-stat">
+                    <span class="cap-stat-label">Now</span>
+                    <span class="cap-stat-val danger">{{ alert.current_pct.toFixed(1) }}%</span>
+                  </span>
+                  <span class="cap-delta">+{{ alert.delta.toFixed(1) }}%</span>
+                </div>
+                <div class="cap-actions">
+                  <button class="cap-ask-ai" (click)="askAIAboutAlert(alert)">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/>
+                    </svg>
+                    Ask AI
+                  </button>
+                  <button class="cap-ack" (click)="acknowledgeAlert(alert)">✓ Acknowledge</button>
+                </div>
+              </div>
+            }
+            <div class="cap-footer-note">
+              Threshold: +{{ activeAlerts()[0]?.threshold }}% · Checked every 5 min
+            </div>
+          </div>
+        }
+
+        <!-- ── Sessions panel ───────────────────────────────────────── -->
+        @if (showSessions()) {
+          <div class="cp-sessions">
+            <div class="cs-header">
+              <span class="cs-title">Recent conversations</span>
+              @if (sessionsLoading()) { <span class="cs-loading">loading...</span> }
+            </div>
+            @for (s of sessions(); track s._id) {
+              <div class="cs-item" [class.active]="sessionId() === s._id" (click)="loadSession(s._id)">
+                <div class="cs-item-icon">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <span class="cs-label">{{ s.title || 'New conversation' }}</span>
+                <button class="cs-del" (click)="deleteSession(s._id, $event)" title="Delete">×</button>
+              </div>
+            }
+            @if (sessions().length === 0 && !sessionsLoading()) {
+              <div class="cs-empty">No saved conversations</div>
+            }
+            <button class="cs-new" (click)="newChat()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              New conversation
+            </button>
+          </div>
+        }
+
+        <!-- ── Messages ─────────────────────────────────────────────── -->
+        <div class="cp-messages" #messagesContainer>
+
+          @if (messages().length === 0) {
+            <div class="cp-welcome">
+              <div class="cw-avatar">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+              </div>
+              <div class="cw-title">Hi, I'm your AI analyst! 👋</div>
+              <div class="cw-sub">Ask me anything — I'll give you insights <em>and</em> let you act on them directly from here.</div>
+              <div class="cw-chips">
+                @for (q of quickQuestions; track q.label) {
+                  <button class="cw-chip" (click)="sendQuickQuestion(q)">
+                    <span class="chip-icon">{{ q.icon }}</span>
+                    <span class="chip-label">{{ q.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @for (msg of messages(); track $index) {
+            <div class="cp-msg" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
+              @if (msg.role === 'assistant') {
+                <div class="msg-avatar-sm">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/>
+                  </svg>
+                </div>
+              }
+              <div class="msg-col">
+                <div class="msg-bubble" [innerHTML]="formatMessage(msg.content)"></div>
+
+                <!-- ── ACTION CARD ──────────────────────────────── -->
+                @if (msg.action && !msg.actionDone) {
+                  <div class="action-card" [style.border-color]="getActionColor(msg.action.type)">
+                    <div class="ac-header">
+                      <span class="ac-icon">{{ msg.action.icon }}</span>
+                      <span class="ac-label">{{ msg.action.label }}</span>
+                    </div>
+                    @if (msg.action.params.segment) {
+                      <div class="ac-detail">
+                        <span class="ac-tag">Segment</span>
+                        <span>{{ msg.action.params.segment }}</span>
+                      </div>
+                    }
+                    @if (msg.action.params.channel) {
+                      <div class="ac-detail">
+                        <span class="ac-tag">Channel</span>
+                        <span>{{ msg.action.params.channel }}</span>
+                      </div>
+                    }
+                    @if (msg.action.params.subject) {
+                      <div class="ac-detail">
+                        <span class="ac-tag">Subject</span>
+                        <span>{{ msg.action.params.subject }}</span>
+                      </div>
+                    }
+                    @if (msg.action.params.discount) {
+                      <div class="ac-detail">
+                        <span class="ac-tag">Offer</span>
+                        <span>{{ msg.action.params.discount }}</span>
+                      </div>
+                    }
+                    @if (msg.action.params.count) {
+                      <div class="ac-detail">
+                        <span class="ac-tag">Audience</span>
+                        <span>{{ msg.action.params.count | number }} customers</span>
+                      </div>
+                    }
+                    <div class="ac-btns">
+                      <button class="ac-btn-execute"
+                        [style.background]="getActionColor(msg.action.type)"
+                        (click)="openConfirmModal(msg, $index)">
+                        {{ msg.action.icon }} Execute now
+                      </button>
+                      <button class="ac-btn-edit" (click)="editAction(msg, $index)">
+                        ✏️ Customize
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                <!-- ── ACTION DONE BADGE ────────────────────────── -->
+                @if (msg.actionDone) {
+                  <div class="action-done-badge">
+                    ✅ Action executed successfully
+                  </div>
+                }
+
+                <div class="msg-time">{{ formatTime(msg.timestamp) }}</div>
+              </div>
+            </div>
+          }
+
+          @if (isLoading()) {
+            <div class="cp-msg assistant">
+              <div class="msg-avatar-sm">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4"/>
+                </svg>
+              </div>
+              <div class="msg-col">
+                <div class="msg-bubble typing">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- ── Suggestions ──────────────────────────────────────────── -->
+        @if (messages().length > 0 && !isLoading()) {
+          <div class="cp-suggestions">
+            @for (q of suggestionsForContext(); track q.label) {
+              <button class="cp-sug" (click)="sendQuickQuestion(q)">{{ q.icon }} {{ q.label }}</button>
+            }
+          </div>
+        }
+
+        <!-- ── Input area ───────────────────────────────────────────── -->
+        <div class="cp-input-area">
+          <textarea #inputRef class="cp-input"
+[value]="inputValue"
+            (input)="inputValue = $any($event.target).value"
+            (keydown.enter)="onEnterKey($any($event))"
+            placeholder="Ask anything about your store..."
+            rows="1"
+            [disabled]="isLoading()">
+          </textarea>
+          <button class="cp-send" (click)="sendMessage()" [disabled]="!inputValue.trim() || isLoading()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="cp-footer">
+          <span class="footer-dot"></span>
+          Powered by AI · Actions enabled
+          @if (sessionId()) { <span class="footer-session">· saved</span> }
+          @if (intentStats().total > 0) {
+            <span class="footer-intent" [title]="'Local: ' + intentStats().local + ' | API: ' + intentStats().api">
+              · ⚡ {{ intentStats().local }}/{{ intentStats().total }} local
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ════════════════════════════════════════════════════════════════
+         CONFIRMATION MODAL
+    ════════════════════════════════════════════════════════════════ -->
+    @if (confirmModal()) {
+      <div class="modal-overlay" (click)="closeModal()">
+        <div class="modal-box" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <span class="modal-icon">{{ confirmModal()!.action.icon }}</span>
+            <div>
+              <div class="modal-title">Confirm action</div>
+              <div class="modal-subtitle">{{ confirmModal()!.action.label }}</div>
+            </div>
+            <button class="modal-close" (click)="closeModal()">×</button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Editable fields -->
+            @if (editingAction) {
+              <div class="modal-fields">
+                @if (confirmModal()!.action.params.segment !== undefined) {
+                  <label class="mf-label">Segment</label>
+                  <input class="mf-input" [value]="confirmModal()!.action.params['segment'] ?? ''" (input)="confirmModal()!.action.params['segment'] = $any($event.target).value" placeholder="Segment name"/>
+                }
+                @if (confirmModal()!.action.params.channel !== undefined) {
+                  <label class="mf-label">Channel</label>
+                  <select class="mf-input" [value]="confirmModal()!.action.params['channel'] ?? 'email'" (change)="confirmModal()!.action.params['channel'] = $any($event.target).value">
+                    <option value="email">Email</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="email+whatsapp">Email + WhatsApp</option>
+                    <option value="sms">SMS</option>
+                  </select>
+                }
+                @if (confirmModal()!.action.params.subject !== undefined) {
+                  <label class="mf-label">Email subject</label>
+                  <input class="mf-input" [value]="confirmModal()!.action.params['subject'] ?? ''" (input)="confirmModal()!.action.params['subject'] = $any($event.target).value" placeholder="Subject line"/>
+                }
+                @if (confirmModal()!.action.params.body !== undefined) {
+                  <label class="mf-label">Message</label>
+                  <textarea class="mf-input mf-textarea" [value]="confirmModal()!.action.params['body'] ?? ''" (input)="confirmModal()!.action.params['body'] = $any($event.target).value" rows="4" placeholder="Message body"></textarea>
+                }
+                @if (confirmModal()!.action.params.discount !== undefined) {
+                  <label class="mf-label">Offer / discount</label>
+                  <input class="mf-input" [value]="confirmModal()!.action.params['discount'] ?? ''" (input)="confirmModal()!.action.params['discount'] = $any($event.target).value" placeholder="e.g. -15%"/>
+                }
+                @if (confirmModal()!.action.params.filter_label !== undefined) {
+                  <label class="mf-label">Segment filter</label>
+                  <input class="mf-input" [value]="confirmModal()!.action.params['filter_label'] ?? ''" (input)="confirmModal()!.action.params['filter_label'] = $any($event.target).value" placeholder="Filter description"/>
+                }
+              </div>
+            } @else {
+              <!-- Summary view -->
+              <div class="modal-summary">
+                @for (entry of getParamEntries(confirmModal()!.action.params); track entry.key) {
+                  <div class="ms-row">
+                    <span class="ms-key">{{ entry.key }}</span>
+                    <span class="ms-val">{{ entry.value }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button class="modal-btn-cancel" (click)="closeModal()">Cancel</button>
+            <button class="modal-btn-edit" (click)="editingAction = !editingAction">
+              {{ editingAction ? '👁 Preview' : '✏️ Edit' }}
+            </button>
+            <button class="modal-btn-confirm"
+              [style.background]="getActionColor(confirmModal()!.action.type)"
+              [disabled]="executingAction()"
+              (click)="executeAction()">
+              @if (executingAction()) {
+                <span class="btn-spinner"></span> Executing...
+              } @else {
+                {{ confirmModal()!.action.icon }} Confirm & execute
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }

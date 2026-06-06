@@ -1,0 +1,36 @@
+.kpi {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 16px; padding: 20px;
+      box-shadow: var(--sh);
+      position: relative; overflow: hidden;
+      transition: .2s cubic-bezier(.4,0,.2,1);
+      cursor: default;
+    }
+    .kpi:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shm);
+      border-color: var(--kc, var(--am));
+    }
+    .kpi-accent-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--kc, var(--am)), transparent 70%);
+    }
+    .kpi:hover .kpi-accent-bar { background: linear-gradient(90deg, var(--kc, var(--am)) 60%, transparent); }
+
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .kpi-label { font-size: 9px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .14em; }
+    .kpi-tag {
+      font-size: 9px; font-weight: 700; color: var(--kc, var(--am));
+      background: var(--kb, rgba(224,120,32,.10));
+      padding: 2px 7px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid var(--kc, var(--am)); opacity: .8;
+    }
+    .kpi-value {
+      font-size: 30px; font-weight: 800; letter-spacing: -.04em;
+      line-height: 1; color: var(--tx); margin-bottom: 12px;
+    }
+    .kpi-footer { display: flex; align-items: center; gap: 7px; }
+    .kpi-icon { font-size: 14px; opacity: .65; }
+    .kpi-sub { font-size: 11px; color: var(--t3); font-weight: 500; }

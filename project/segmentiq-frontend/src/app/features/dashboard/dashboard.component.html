@@ -1,0 +1,244 @@
+<div class="dash" [class.loaded]="isLoaded">
+
+    <!-- ══════════════════ KPI STRIP ══════════════════ -->
+    <div class="section-label">
+      <span class="sl-line"></span><span class="sl-text">KPI OVERVIEW</span><span class="sl-line"></span>
+    </div>
+
+    <div class="kpi-row">
+      @for (k of kpis; track k.label; let i = $index) {
+        <div class="kpi" [style.--kc]="k.color" [style.--kb]="k.bg" [style.animation-delay]="(i*0.06)+'s'">
+          <div class="kpi-glow"></div>
+          <div class="kpi-top">
+            <div class="kpi-icon">{{ k.icon }}</div>
+            <div>
+              <div class="kpi-lbl">{{ k.label }}</div>
+              @if (k.sublabel) {
+                <div class="kpi-sublbl">{{ k.sublabel }}</div>
+              }
+            </div>
+          </div>
+          <div class="kpi-main">
+            <span class="kpi-val" [innerHTML]="k.value"></span>
+            <span class="kpi-unit" *ngIf="k.unit">{{ k.unit }}</span>
+          </div>
+          <div class="kpi-spark">
+            <canvas [attr.data-kpi]="i" height="40"></canvas>
+          </div>
+          <div class="kpi-accent-bar"></div>
+        </div>
+      }
+    </div>
+
+    <!-- ══════════════════ SEGMENT CARDS ══════════════════ -->
+    <div class="section-label">
+      <span class="sl-line"></span><span class="sl-text">SEGMENT BREAKDOWN</span><span class="sl-line"></span>
+    </div>
+
+    <div class="seg-row">
+      @for (s of data.segments(); track s.id; let i = $index) {
+        <div class="sc" [style.--sc]="s.color" [style.--scb]="s.colorBg"
+             (click)="nav.navigate('segments')" [style.animation-delay]="(i*0.07)+'s'">
+          <div class="sc-stripe"></div>
+          <div class="sc-body">
+            <div class="sc-header">
+              <div class="sc-icon" [style.background]="s.colorBg">{{ s.icon }}</div>
+              <div class="sc-info">
+                <div class="sc-name">{{ s.name }}</div>
+                <div class="sc-count">{{ fmtN(data.segmentCounts()[s.id]) }} customers</div>
+              </div>
+              <div class="sc-pct">{{ getPct(s.id) }}%</div>
+            </div>
+            <div class="sc-bar-track">
+              <div class="sc-bar-fill" [style.width]="getPct(s.id)+'%'"></div>
+            </div>
+            <div class="sc-metrics">
+              <div class="sc-m">
+                <div class="sc-m-val">{{ data.agg()[s.id]?.avg_spend | number:'1.0-0' }}<span class="sc-m-unit"> KWD</span></div>
+                <div class="sc-m-lbl">Avg Spend</div>
+              </div>
+              <div class="sc-m">
+                <div class="sc-m-val">{{ data.agg()[s.id]?.avg_orders | number:'1.0-0' }}<span class="sc-m-unit"> orders</span></div>
+                <div class="sc-m-lbl">Avg Orders</div>
+              </div>
+              <div class="sc-m">
+                <div class="sc-m-val">{{ data.agg()[s.id]?.avg_recency }}<span class="sc-m-unit"> days</span></div>
+                <div class="sc-m-lbl">Recency</div>
+              </div>
+            </div>
+            <div class="sc-cta">View Segment →</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ══════════════════ MAIN CHARTS ROW ══════════════════ -->
+    <div class="section-label">
+      <span class="sl-line"></span><span class="sl-text">REVENUE & CLUSTERING</span><span class="sl-line"></span>
+    </div>
+
+    <div class="charts-row charts-row--main">
+      <div class="chart-card">
+        <div class="cc-head">
+          <div class="cc-head-top">
+            <div class="cc-title">Monthly Spend Trend</div>
+            <div class="cc-sub cc-sub--right">Y · Avg Spend (KWD) · log scale · per segment</div>
+          </div>
+          <div class="cc-legend">
+            @for (s of data.segments(); track s.id) {
+              <div class="leg-item">
+                <div class="leg-dot" [style.background]="s.color"></div>
+                <span>{{ s.icon }} {{ s.name }}</span>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="chart-body chart-body--line-fill"><canvas #lineCanvas></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="cc-head">
+          <div>
+            <div class="cc-title">Revenue Share</div>
+            <div class="cc-sub">By segment · KWD net (after refunds)</div>
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <div class="donut-c-wrap"><canvas #donutCanvas></canvas></div>
+          <div class="donut-legend">
+            @for (s of data.segments(); track s.id) {
+              <div class="dl-row">
+                <div class="dl-dot" [style.background]="s.color"></div>
+                <div class="dl-name">{{ s.name }}</div>
+                <div class="dl-val" [style.color]="s.color">{{ getRevShare(s.id) }}%</div>
+              </div>
+            }
+            @if (refundsFormatted) {
+              <div class="dl-reconcile">
+                <div class="dl-reconcile-row">
+                  <span>Total Revenue (fulfilled orders)</span>
+                  <span class="dl-reconcile-val">{{ (data.totalRevenue() / 1_000_000).toFixed(2) }}M</span>
+                </div>
+                <div class="dl-reconcile-row dl-reconcile-neg">
+                  <span>Refunds</span>
+                  <span class="dl-reconcile-val">− {{ refundsFormatted }}</span>
+                </div>
+                <div class="dl-reconcile-row dl-reconcile-net">
+                  <span>Net Revenue (donut)</span>
+                  <span class="dl-reconcile-val">{{ (data.totalRevenue() / 1_000_000).toFixed(2) }}M KWD</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ SCATTER + GROWTH ══════════════════ -->
+    <div class="charts-row charts-row--mid">
+      <div class="chart-card">
+        <div class="cc-head">
+          <div>
+            <div class="cc-title">Customer Clusters</div>
+            <div class="cc-sub">
+              PC1 ({{ data.pcaMeta()?.explained_variance?.[0] ?? '…' }}%)
+              &nbsp;·&nbsp;
+              PC2 ({{ data.pcaMeta()?.explained_variance?.[1] ?? '…' }}%)
+              &nbsp;·&nbsp; K-Means K={{ data.segments().length }} · 1 000 sample
+            </div>
+          </div>
+          <div class="pca-pills">
+            <div class="cc-pill pca-pill-ev"
+              [class.ev-good]="(data.pcaMeta()?.total_explained ?? 0) >= 70"
+              [class.ev-warn]="(data.pcaMeta()?.total_explained ?? 0) < 70">
+              {{ data.pcaMeta()?.total_explained ?? '…' }}% explained
+            </div>
+            <div class="cc-pill">2D Projection</div>
+          </div>
+        </div>
+        <!-- Mini variance bars -->
+        @if (data.pcaMeta(); as meta) {
+          <div class="pca-ev-strip">
+            <div class="pca-ev-bar">
+              <span class="pca-ev-lbl pc1-col">PC1</span>
+              <span class="pca-ev-desc">{{ dominantPC1?.feature ?? 'Spending Power' }}</span>
+              <div class="pca-ev-track"><div class="pca-ev-fill pc1-fill" [style.width]="meta.explained_variance[0] + '%'"></div></div>
+              <span class="pca-ev-pct pc1-col">{{ meta.explained_variance[0] }}%</span>
+            </div>
+            <div class="pca-ev-bar">
+              <span class="pca-ev-lbl pc2-col">PC2</span>
+              <span class="pca-ev-desc">{{ dominantPC2?.feature ?? 'Recency' }}</span>
+              <div class="pca-ev-track"><div class="pca-ev-fill pc2-fill" [style.width]="meta.explained_variance[1] + '%'"></div></div>
+              <span class="pca-ev-pct pc2-col">{{ meta.explained_variance[1] }}%</span>
+            </div>
+
+          </div>
+        }
+        <div class="chart-body chart-body--med"><canvas #scatterCanvas></canvas></div>
+        <div class="scatter-leg">
+          @for (s of data.segments(); track s.id) {
+            <div class="leg-item">
+              <div class="leg-dot" [style.background]="s.color"></div>
+              <span>{{ s.name }} <em>({{ fmtN(data.segmentCounts()[s.id]) }})</em></span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="cc-head">
+          <div>
+            <div class="cc-title">Revenue Growth</div>
+            <div class="cc-sub">Y · Total KWD &nbsp;·&nbsp; X · Month &nbsp;·&nbsp; {{ data.monthlyTotalLabels()[0] }} – {{ data.monthlyTotalLabels()[data.monthlyTotalLabels().length-1] }}</div>
+          </div>
+          <div class="cc-pill cc-pill--green">+trend</div>
+        </div>
+        <div class="chart-body chart-body--growth"><canvas #growthCanvas></canvas></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ CHANNELS + CATEGORIES ══════════════════ -->
+    <div class="section-label">
+      <span class="sl-line"></span><span class="sl-text">CHANNELS & CATEGORIES</span><span class="sl-line"></span>
+    </div>
+
+    <div class="charts-row charts-row--two-equal">
+      <div class="chart-card">
+        <div class="cc-head"><div><div class="cc-title">Top Categories</div><div class="cc-sub">Revenue KWD · {{ topCats.length }} categories</div></div></div>
+        <div class="hb-list">
+          @for (c of topCats; track c.name; let i = $index) {
+            <div class="hb-row">
+              <div class="hb-meta">
+                <div class="hb-rank">#{{ i+1 }}</div>
+                <div class="hb-lbl">{{ c.name }}</div>
+                <div class="hb-val" style="color:var(--am)">{{ c.rev }}K KWD</div>
+              </div>
+              <div class="hb-track">
+                <div class="hb-fill" [style.width]="c.pct+'%'" style="background:linear-gradient(90deg,var(--am),var(--am3))"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="chart-card chart-card--channels">
+        <div class="cc-head"><div><div class="cc-title">Order Channels</div><div class="cc-sub">{{ channelSummary.totalOrders }} orders · % of total</div></div></div>
+        <div class="hb-list hb-list--fill">
+          @for (ch of channels; track ch.name) {
+            <div class="hb-row2">
+              <div class="hb-meta2">
+                <div class="hb-icon2" [style.background]="ch.color+'18'" [style.color]="ch.color">{{ ch.icon }}</div>
+                <div class="hb-lbl2">{{ ch.name }}</div>
+                <div class="hb-pct2" [style.color]="ch.color">{{ ch.pct }}%</div>
+              </div>
+              <div class="hb-track2">
+                <div class="hb-fill2" [style.width]="ch.barPct+'%'" [style.background]="ch.color"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+  </div>

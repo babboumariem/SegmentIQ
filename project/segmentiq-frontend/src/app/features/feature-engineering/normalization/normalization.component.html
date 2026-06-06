@@ -1,0 +1,209 @@
+<div class="fe" style="padding:18px 24px 52px;animation:fi .3s ease both">
+
+  <!-- header -->
+  <div class="fe-head">
+    <div class="fe-bar" style="background:linear-gradient(180deg,#059669,#34d399)"></div>
+    <div>
+      <div class="fe-title">ML Pipeline — Customer Segmentation</div>
+      <div class="fe-sub">Raw Data → Data Cleaning → Feature Engineering → Data Preprocessing → K-Means Clustering → Customer Segmentation → PCA Visualization → Business Insights</div>
+    </div>
+  </div>
+
+  <!-- ① Pipeline -->
+  <div class="pipe-wrapper">
+    <div class="pipe-label">ML Pipeline</div>
+    <div class="pipe">
+
+      <!-- ── Row 1 : steps 1-4 ── -->
+      <div class="pipe-row pipe-row-1">
+        @for (s of pipeline.slice(0,4); track s.title; let i=$index) {
+          <div class="pstep">
+            <div class="pstep-card" [style.border-color]="s.color+'50'">
+              <div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0"
+                [style.background]="s.color"></div>
+              <div style="position:absolute;inset:0;border-radius:inherit;pointer-events:none"
+                [style.background]="'radial-gradient(ellipse at 50% 0%,'+s.color+'12 0%,transparent 60%)'"></div>
+              <div class="pstep-badge" [style.background]="s.color">{{i+1}}</div>
+              <div class="pstep-icon-wrap"
+                [style.background]="s.color+'14'"
+                [style.border]="'1.5px solid '+s.color+'28'">{{s.icon}}</div>
+              <div class="pstep-body">
+                <div class="pstep-title" [style.color]="s.color">{{s.title}}</div>
+                @if (s.sub) { <div class="pstep-sub">{{s.sub}}</div> }
+              </div>
+            </div>
+            @if (i < 3) {
+              <div class="pstep-arrow">
+                <svg width="28" height="16" viewBox="0 0 28 16" fill="none">
+                  <line x1="2" y1="8" x2="20" y2="8"
+                    [attr.stroke]="s.color" stroke-width="1.5" stroke-linecap="round" opacity=".45"/>
+                  <polyline points="15,4 21,8 15,12"
+                    [attr.stroke]="s.color" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" opacity=".65"/>
+                </svg>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ── Row 2 : steps 5-8 ── -->
+      <div class="pipe-row pipe-row-2">
+        @for (s of pipeline.slice(4,8); track s.title; let i=$index) {
+          <div class="pstep">
+            <div class="pstep-card" [style.border-color]="s.color+'50'">
+              <div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0"
+                [style.background]="s.color"></div>
+              <div style="position:absolute;inset:0;border-radius:inherit;pointer-events:none"
+                [style.background]="'radial-gradient(ellipse at 50% 0%,'+s.color+'12 0%,transparent 60%)'"></div>
+              <div class="pstep-badge" [style.background]="s.color">{{i+5}}</div>
+              <div class="pstep-icon-wrap"
+                [style.background]="s.color+'14'"
+                [style.border]="'1.5px solid '+s.color+'28'">{{s.icon}}</div>
+              <div class="pstep-body">
+                <div class="pstep-title" [style.color]="s.color">{{s.title}}</div>
+                @if (s.sub) { <div class="pstep-sub">{{s.sub}}</div> }
+              </div>
+            </div>
+            @if (i < 3) {
+              <div class="pstep-arrow">
+                <svg width="28" height="16" viewBox="0 0 28 16" fill="none">
+                  <line x1="2" y1="8" x2="20" y2="8"
+                    [attr.stroke]="s.color" stroke-width="1.5" stroke-linecap="round" opacity=".45"/>
+                  <polyline points="15,4 21,8 15,12"
+                    [attr.stroke]="s.color" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" fill="none" opacity=".65"/>
+                </svg>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ⑤ PCA scatter — unified card -->
+  <div class="sec" style="margin-top:18px">PCA 2D — Post-clustering visualization (on Xs)</div>
+
+  <div class="pca-card">
+
+    <!-- Variance strip + legend -->
+    @if (data.pcaMeta(); as meta) {
+      <div class="pca-strip">
+        <div class="pca-strip-rows">
+          <!-- Row PC1 -->
+          <div class="pca-strip-row">
+            <span class="ev-lbl" style="color:#7c3aed">PC1</span>
+            <span class="ev-desc">{{pc1Label}}</span>
+            <div class="ev-track">
+              <div class="ev-fill" style="background:linear-gradient(90deg,#7c3aed,#a78bfa)"
+                [style.width]="meta.explained_variance[0]+'%'"></div>
+            </div>
+            <span class="ev-pct" style="color:#7c3aed">{{meta.explained_variance[0]}}%</span>
+          </div>
+          <!-- Row PC2 -->
+          <div class="pca-strip-row" style="border-bottom:none">
+            <span class="ev-lbl" style="color:#2563eb">PC2</span>
+            <span class="ev-desc">{{pc2Label}}</span>
+            <div class="ev-track">
+              <div class="ev-fill" style="background:linear-gradient(90deg,#2563eb,#60a5fa)"
+                [style.width]="meta.explained_variance[1]+'%'"></div>
+            </div>
+            <span class="ev-pct" style="color:#2563eb">{{meta.explained_variance[1]}}%</span>
+          </div>
+        </div>
+        <!-- Total -->
+        <div class="ev-div" style="height:auto;align-self:stretch"></div>
+        <div class="ev-tot">
+          <span class="ev-tot-n"
+            [style.color]="meta.total_explained>=65?'#059669':meta.total_explained>=50?'#d97706':'#ef4444'">
+            {{meta.total_explained}}%
+          </span>
+          <span class="ev-tot-l">explained</span>
+          <span class="ev-tot-sub">PC1 + PC2</span>
+        </div>
+        <!-- Legend — far right -->
+        <div class="ev-div" style="height:auto;align-self:stretch"></div>
+        <div class="pca-inline-legend">
+          @for (seg of data.segments(); track seg.id) {
+            <div class="pca-leg-row">
+              <div class="pca-leg-dot" [style.background]="seg.color"></div>
+              <span>{{seg.icon}} {{seg.name}}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Canvas + axes -->
+    <div class="pca-chart-area">
+      <div class="pca-ylabel">
+        <div class="pca-ylabel-text">
+          <span class="pca-ylabel-arrow">↑</span>
+          <span>PC2 — {{pc2Label}}</span>
+        </div>
+      </div>
+      <div class="swrap">
+        <canvas #scatterCanvas></canvas>
+      </div>
+      <div class="pca-xlabel">
+        <span>PC1 — {{pc1Label}}</span>
+        <span style="font-size:12px">→</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ⑥ Stacked segment z-score profile -->
+  <div class="sec">Segment z-scores (post-scaling)</div>
+  <div class="profile-wrap">
+    <!-- Column headers -->
+    <div style="display:flex;align-items:center;padding:10px 20px;border-bottom:1px solid var(--bd);background:var(--bg2);gap:16px">
+      <div style="width:140px;flex-shrink:0"></div>
+      <div style="display:flex;gap:4px;flex:1">
+        @for (c of hCols; track c) {
+          <div style="flex:1;text-align:center;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t3)">{{c}}</div>
+        }
+      </div>
+    </div>
+    <!-- Segment rows -->
+    @for (row of hRows; track row.seg) {
+      <div class="profile-row">
+        <div class="profile-seg-info">
+          <div class="profile-dot" [style.background]="row.color"></div>
+          <span style="font-size:16px">{{row.icon}}</span>
+          <span class="profile-seg-name" [style.color]="row.color">{{row.seg}}</span>
+        </div>
+        <div class="profile-bars">
+          @for (v of row.vals; track $index) {
+            <div class="pbar"
+              [class.pbar-strong-pos]="v > 0.6"
+              [class.pbar-pos]="v > 0.2 && v <= 0.6"
+              [class.pbar-neu]="v >= -0.2 && v <= 0.2"
+              [class.pbar-neg]="v < -0.2 && v >= -0.6"
+              [class.pbar-strong-neg]="v < -0.6"
+              [title]="hCols[$index] + ' : ' + (v>0?'+':'') + v.toFixed(2)">
+              {{v>0?'+':''}}{{v.toFixed(2)}}
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="fn-box">
+    <div class="fn-title">📐 ML Pipeline Formulas · from Raw Data to Business Insights</div>
+    <div class="fn-grid">
+      <div class="fn-item"><code>Raw Data</code><span>Customers · Orders · Products · Returns — 4 CSV tables imported into SQLite database</span></div>
+      <div class="fn-item"><code>Data Cleaning</code><span>Duplicate removal · null filling · type conversion · anomaly filtering</span></div>
+      <div class="fn-item"><code>Feature Engineering</code><span>total_spend · order_count · recency · aov · spend_velocity · return_rate · diversity · clv_slope</span></div>
+      <div class="fn-item"><code>Data Preprocessing</code><span>Winsorization clip(p01, p99) on all features + StandardScaler → z = (x − μ) / σ → normalized matrix Xs</span></div>
+      <div class="fn-item"><code>K-Means Clustering</code><span>fit_predict(Xs) · K clusters · n_init=10 · random_state=42 — applied on Xs</span></div>
+      <div class="fn-item"><code>Customer Segmentation</code><span>Sorted desc by avg total_spend → 0=VIP · 1=Loyal · 2=At Risk · 3=Lost · business labels</span></div>
+      <div class="fn-item"><code>PCA Visualization</code><span>X_pca = Xs · Vᵀ · applied on Xs AFTER K-Means · 2D only · n_components=2 · random_state=42</span></div>
+      <div class="fn-item"><code>Business Insights</code><span>KPIs · scatter PCA · z-scores · recommandations campagnes · export PDF · dashboard BI</span></div>
+    </div>
+  </div>
+
+</div>

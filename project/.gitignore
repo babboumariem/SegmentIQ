@@ -1,0 +1,19 @@
+# CSV data
+segmentiq-backend/data/*.csv
+
+# Secrets
+segmentiq-backend/.env
+segmentiq-backend/.env.txt
+
+# Environments Angular
+segmentiq-frontend/src/environments/environment.ts
+segmentiq-frontend/src/environments/environment.prod.ts
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node
+segmentiq-frontend/node_modules/
+segmentiq-frontend/dist/
+segmentiq-frontend/.angular/

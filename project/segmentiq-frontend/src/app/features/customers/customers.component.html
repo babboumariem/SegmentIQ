@@ -1,0 +1,181 @@
+<div class="cu">
+
+    <!-- ── Page Header ── -->
+
+    <!-- ── Segment Pills ── -->
+    <div class="toolbar">
+      <div class="seg-pills">
+        <button class="seg-pill" [class.pill-active]="segFilter === -1" (click)="clickTotal()">
+          <span class="pill-dot all-dot"></span>
+          All Customers
+        </button>
+        @for (s of data.segments(); track s.id) {
+          <button class="seg-pill"
+                  [class.pill-active]="segFilter === s.id"
+                  [style.--pc]="s.color"
+                  [style.--pbg]="s.colorBg"
+                  (click)="clickSeg(s.id)">
+            <span class="pill-dot" [style.background]="s.color"></span>
+            {{ s.icon }} {{ s.name }}
+          </button>
+        }
+      </div>
+
+      <div class="toolbar-right">
+        <div class="search-wrap">
+          <span class="search-ico">🔍</span>
+          <input class="tb-input tb-search" [(ngModel)]="searchQ"
+                 placeholder="Search by phone…" (keyup.enter)="onSearch()" />
+          @if (searchQ) {
+            <button class="fi-x" (click)="searchQ=''; onSearch()">✕</button>
+          }
+        </div>
+        @if (segFilter !== -1) {
+          <div class="sort-wrap">
+            <span class="sort-label">Sort</span>
+            <select class="tb-input tb-select" [(ngModel)]="sortField" (ngModelChange)="load(true)">
+              <option value="total_spend">💰 Spend</option>
+              <option value="recency">🕐 Last Purchase</option>
+              <option value="order_count">📦 Orders</option>
+              <option value="aov">🎯 Avg Order</option>
+            </select>
+          </div>
+        }
+        @if (hasFilters()) {
+          <button class="tb-reset" (click)="clearFilters()">✕ Reset</button>
+        }
+      </div>
+    </div>
+
+    <!-- ── Table ── -->
+    <div class="table-wrap">
+      @if (loading()) {
+        <div class="loader"><div class="spin"></div><span>Loading customers…</span></div>
+      } @else if (rows().length === 0) {
+        <div class="empty">
+          <div class="empty-ico">🔍</div>
+          <div class="empty-title">No customers found</div>
+          <div class="empty-sub">Try adjusting your filters or search query</div>
+          <button class="tb-reset mt8" (click)="clearFilters()">✕ Reset filters</button>
+        </div>
+      } @else {
+        <table class="dt">
+          <thead>
+            <tr>
+              <th class="th-id"><div class="th-inner">Phone Number</div></th>
+              <th><div class="th-inner">Segment</div></th>
+              @if (segFilter !== -1) {
+                <th class="th-r sortable" (click)="setSort('total_spend')" [class.th-on]="sortField==='total_spend'">
+                  <div class="th-inner th-right">Spend <span class="sa">{{ sortField==='total_spend' ? '▼' : '⇅' }}</span></div>
+                </th>
+                <th class="th-r sortable" (click)="setSort('order_count')" [class.th-on]="sortField==='order_count'">
+                  <div class="th-inner th-right">Orders <span class="sa">{{ sortField==='order_count' ? '▼' : '⇅' }}</span></div>
+                </th>
+                <th class="th-r sortable" (click)="setSort('recency')" [class.th-on]="sortField==='recency'">
+                  <div class="th-inner th-right">Last Purchase <span class="sa">{{ sortField==='recency' ? '▲' : '⇅' }}</span></div>
+                </th>
+                <th class="th-r sortable" (click)="setSort('aov')" [class.th-on]="sortField==='aov'">
+                  <div class="th-inner th-right">Avg. Order <span class="sa">{{ sortField==='aov' ? '▼' : '⇅' }}</span></div>
+                </th>
+              } @else {
+                <th class="th-r"><div class="th-inner th-right">Spend</div></th>
+                <th class="th-r"><div class="th-inner th-right">Orders</div></th>
+                <th class="th-r"><div class="th-inner th-right">Last Purchase</div></th>
+                <th class="th-r"><div class="th-inner th-right">Avg. Order</div></th>
+              }
+              <th><div class="th-inner">Top Category</div></th>
+              <th><div class="th-inner">Channel</div></th>
+
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of rows(); track c.customer_id; let even = $even) {
+              <tr class="row" [class.row-even]="even">
+
+                <!-- Customer ID — compact, une seule ligne -->
+                <td class="td-id">
+                  <div class="cid-wrap">
+                    <div class="cid-dot" [style.background]="seg(c.segment_id ?? c.seg).color"></div>
+                    <span class="cid-val">{{ c.phone || '—' }}</span>
+                  </div>
+                </td>
+
+                <!-- Segment -->
+                <td>
+                  <span class="seg-tag"
+                    [style.background]="seg(c.segment_id ?? c.seg).colorBg"
+                    [style.color]="seg(c.segment_id ?? c.seg).color"
+                    [style.border-color]="seg(c.segment_id ?? c.seg).color + '40'">
+                    {{ seg(c.segment_id ?? c.seg).icon }} {{ seg(c.segment_id ?? c.seg).name }}
+                  </span>
+                </td>
+
+                <!-- Spend -->
+                <td class="td-num">
+                  <span class="num-val">{{ c.total_spend | number:'1.0-0' }}</span>
+                  <span class="num-unit">KWD</span>
+                </td>
+
+                <!-- Orders -->
+                <td class="td-num">
+                  <span class="num-val">{{ c.order_count }}</span>
+                  <span class="num-unit">orders</span>
+                </td>
+
+                <!-- Last Purchase -->
+                <td class="td-num">
+                  <div class="rec-wrap">
+                    <span class="rec-badge"
+                          [style.color]="rc(c.recency)"
+                          [style.background]="rc(c.recency) + '15'"
+                          [style.border-color]="rc(c.recency) + '30'">
+                      {{ recencyLabel(c.recency) }}
+                    </span>
+                    <span class="rec-status" [style.color]="rc(c.recency)">
+                      {{ c.recency < 30 ? '● Active' : c.recency < 90 ? '● Warm' : '● At Risk' }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Avg. Order -->
+                <td class="td-num">
+                  <span class="num-val">{{ c.aov | number:'1.0-0' }}</span>
+                  <span class="num-unit">KWD</span>
+                </td>
+
+                <!-- Top Category -->
+                <td><span class="pill-tag">{{ c.top_cat }}</span></td>
+
+                <!-- Channel -->
+                <td><span class="pill-tag chan-tag">{{ chanIco(c.top_channel) }} {{ c.top_channel }}</span></td>
+
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+    <!-- ── Pagination ── -->
+    @if (!loading() && rows().length > 0) {
+      <div class="pager">
+        <div class="pg-info">
+          <strong>{{ page()*PER+1 | number }}–{{ min((page()+1)*PER, totalCount()) | number }}</strong>
+          of <strong>{{ totalCount() | number }}</strong> customers
+          @if (segFilter !== -1) { <span class="pg-seg">· {{ segName() }}</span> }
+        </div>
+        <div class="pg-center">
+          <button class="pg-btn" [disabled]="page()===0" (click)="go(0)">«</button>
+          <button class="pg-btn" [disabled]="page()===0" (click)="go(page()-1)">‹</button>
+          @for (p of pages(); track p) {
+            <button class="pg-btn pg-num" [class.pg-cur]="p===page()" (click)="go(p)">{{ p+1 }}</button>
+          }
+          <button class="pg-btn" [disabled]="page()===lastPage()" (click)="go(page()+1)">›</button>
+          <button class="pg-btn" [disabled]="page()===lastPage()" (click)="go(lastPage())">»</button>
+        </div>
+        <div class="pg-total">Page {{ page()+1 }} / {{ lastPage()+1 }}</div>
+      </div>
+    }
+
+  </div>

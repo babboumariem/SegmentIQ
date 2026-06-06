@@ -1,0 +1,119 @@
+<div class="fe" style="padding:20px 28px 56px;animation:fi .3s ease both">
+
+  <!-- ── KPI STRIP ───────────────────────────────────────────────────────── -->
+  <div class="kpi-strip">
+
+    <!-- Total Revenue -->
+    <div class="kpi-card" style="--kc:var(--am);--kg:rgba(224,120,32,.18),rgba(224,120,32,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(224,120,32,.15)">
+          <span class="kc-icon">💰</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Total Revenue</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ totalRevM }}<span class="kc-unit">M KWD</span></div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" style="width:100%;background:var(--kc)"></div></div>
+    </div>
+
+    <!-- Overall AOV -->
+    <div class="kpi-card" style="--kc:#2563eb;--kg:rgba(37,99,235,.18),rgba(37,99,235,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(37,99,235,.15)">
+          <span class="kc-icon">🛒</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Overall AOV</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ overallAov }}<span class="kc-unit">KWD</span></div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" style="width:72%;background:#2563eb"></div></div>
+    </div>
+
+    <!-- Top Velocity -->
+    <div class="kpi-card" style="--kc:#059669;--kg:rgba(5,150,105,.18),rgba(5,150,105,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(5,150,105,.15)">
+          <span class="kc-icon">⚡</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Top Velocity</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ topVelocity }}<span class="kc-unit">KWD/mo</span></div>
+      <div class="kc-sub">{{ topVelocityName }}</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" style="width:85%;background:#059669"></div></div>
+    </div>
+
+    <!-- Growing CLV -->
+    <div class="kpi-card" style="--kc:#7c3aed;--kg:rgba(124,58,237,.18),rgba(124,58,237,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(124,58,237,.15)">
+          <span class="kc-icon">📈</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Growing CLV</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ topClvGrowing }}<span class="kc-unit">%</span></div>
+      <div class="kc-sub">{{ topClvGrowingName }}</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" [style.width]="topClvGrowing+'%'" style="background:#7c3aed"></div></div>
+    </div>
+
+    <!-- Top Avg. Spend -->
+    <div class="kpi-card" style="--kc:#d97706;--kg:rgba(217,119,6,.18),rgba(217,119,6,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(217,119,6,.15)">
+          <span class="kc-icon">🏆</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Top Avg. Spend</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ topSpendVal }}<span class="kc-unit">KWD</span></div>
+      <div class="kc-sub">{{ topSpendName }}</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" style="width:90%;background:#d97706"></div></div>
+    </div>
+
+  </div>
+
+  <!-- ── CORE CHARTS ────────────────────────────────────────────────────── -->
+  <div class="sv-lbl" style="margin-top:24px"><span class="sv-dot"></span> Core Spending</div>
+  <div class="grid2">
+    <div class="card"><div class="ct">Lifetime Spend <span class="cs">avg KWD / customer</span></div><canvas #spendCanvas height="260"></canvas></div>
+    <div class="card"><div class="ct">AOV <span class="cs">KWD / transaction</span></div><canvas #aovCanvas height="260"></canvas></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ct">30-day Spend <span class="cs">recent activity · KWD</span></div><canvas #sp30Canvas height="260"></canvas></div>
+    <div class="card"><div class="ct">90-day Spend <span class="cs">medium term · KWD</span></div><canvas #sp90Canvas height="260"></canvas></div>
+  </div>
+
+  <!-- ── VELOCITY + NET ────────────────────────────────────────────────── -->
+  <div class="sv-lbl" style="margin-top:8px"><span class="sv-dot"></span> Velocity &amp; Net Revenue</div>
+  <div class="grid2">
+    <div class="card"><div class="ct">Spend Velocity <span class="cs">KWD / active month</span></div><canvas #velCanvas height="260"></canvas></div>
+    <div class="card"><div class="ct">Net Revenue <span class="cs">avg after refunds · KWD</span></div><canvas #netCanvas height="260"></canvas></div>
+  </div>
+
+  <!-- ── FORMULAS ─────────────────────────────────────────────────────── -->
+  <div class="fn-box" style="margin-top:8px">
+    <div class="fn-title">📐 Formulas — Spending &amp; Value</div>
+    <div class="fn-grid">
+      <div class="fn-item"><code>total_spend</code> = Σ net_amount_kwd per customer</div>
+      <div class="fn-item"><code>aov</code> = total_spend / order_count</div>
+      <div class="fn-item"><code>spend_30/90/365</code> = Σ net_kwd within the rolling window</div>
+      <div class="fn-item"><code>spend_velocity</code> = total_spend / active_months</div>
+      <div class="fn-item"><code>net_revenue</code> = total_spend × (1 − refund_ratio)</div>
+      <div class="fn-item"><code>projected_annual</code> = spend_velocity × 12</div>
+      <div class="fn-item"><code>clv_slope</code> = linear regression of monthly spend</div>
+      <div class="fn-item"><code>clv_growing_pct</code> = % customers with clv_slope &gt; 0</div>
+    </div>
+  </div>
+
+</div>

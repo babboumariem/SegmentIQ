@@ -1,0 +1,11 @@
+<div class="mc" [style.--mc]="color">
+      <div class="mc-top">
+        <span class="mc-icon-wrap" [style.background]="color + '18'">{{ icon }}</span>
+        <span class="mc-seg" [style.color]="color">{{ segName }}</span>
+      </div>
+      <div class="mc-val">{{ value }}</div>
+      <div class="mc-lbl">{{ label }}</div>
+      @if (secondary) {
+        <div class="mc-2">{{ secondary }}</div>
+      }
+    </div>

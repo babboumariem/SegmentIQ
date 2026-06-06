@@ -1,0 +1,112 @@
+<div class="fe" style="padding:20px 28px 56px;animation:fi .3s ease both">
+
+
+
+  <!-- ══ SECTION 2: COMPARISON CHARTS ════════════════════════════════════════ -->
+  <div class="section-title">📊 How do segments compare?</div>
+
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card chart-card-full">
+      <div class="ct">Avg Order Value (AOV) <span class="cs">KWD per order — the bigger the bar, the more they spend</span></div>
+      <div class="canvas-full-wrap"><canvas #aovCanvas></canvas></div>
+    </div>
+    <div class="card chart-card-full">
+      <div class="ct">Avg Discount % <span class="cs">per order — close to 0% means customers rarely get discounts</span></div>
+      <div class="canvas-full-wrap"><canvas #discCanvas></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3: PRICE BANDS ═══════════════════════════════════════════════ -->
+  <div class="section-title">💎 What is the spending tier of our customers?</div>
+
+  <!-- Customer Spending Tiers — full width -->
+  <div class="card card-full" style="margin-bottom:14px">
+    <div class="ct">Customer Spending Tiers <span class="cs">classified by total lifetime spend</span></div>
+    <div class="tiers-layout">
+      <!-- Canvas donut -->
+      <div style="position:relative;width:220px;height:220px;flex-shrink:0">
+        <canvas #pbDonutCanvas width="220" height="220" style="width:220px;height:220px;display:block"></canvas>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+          <div style="font-size:36px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--tx);line-height:1">{{ highPct }}%</div>
+          <div style="font-size:9px;font-weight:700;color:var(--t4);letter-spacing:.1em;text-transform:uppercase;margin-top:4px">High Value</div>
+        </div>
+      </div>
+      <!-- Bands -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:20px;justify-content:center">
+        @for (b of bands; track b.label) {
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:14px;height:14px;border-radius:4px" [style.background]="b.color"></div>
+                <span style="font-size:14px;font-weight:700;color:var(--t2)">{{ b.label }}</span>
+              </div>
+              <div>
+                <span style="font-size:18px;font-weight:900;font-family:'JetBrains Mono',monospace" [style.color]="b.color">{{ b.pct }}%</span>
+                <span style="font-size:11px;color:var(--t4);margin-left:6px">({{ b.count | number }})</span>
+              </div>
+            </div>
+            <div style="height:14px;background:var(--bg2);border-radius:7px;overflow:hidden">
+              <div [style.width]="b.pct+'%'" [style.background]="b.color"
+                   style="height:100%;border-radius:7px;transition:width 1.4s cubic-bezier(.22,1,.36,1)"></div>
+            </div>
+          </div>
+        }
+        <div style="padding:12px 16px;background:var(--bg2);border-radius:10px;font-size:11.5px;color:var(--t3)">
+          {{ highPct }}% spend ≥500 KWD ·
+          {{ midPct }}% in mid tier ·
+          {{ lowPct }}% spend &lt;100 KWD
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gross vs Net AOV — full width -->
+  <div class="card card-full" style="margin-bottom:14px">
+    <div class="ct">Gross vs Net AOV <span class="cs">what revenue do we actually keep after discounts?</span></div>
+    <div class="gross-net-layout">
+      @for (s of data.segments(); track s.id) {
+        <div class="gross-net-item">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-size:13px;font-weight:700" [style.color]="s.color">{{ s.icon }} {{ s.name }}</span>
+            <span style="font-size:11px;color:var(--t4)">
+              keeps <strong [style.color]="s.color">{{ getNetAov(s.id) | number:'1.1-1' }} KWD</strong> of
+              {{ data.agg()[s.id].avg_aov | number:'1.1-1' }} KWD
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">
+            <span style="font-size:10px;color:var(--t4);width:40px">Gross</span>
+            <div style="flex:1;height:11px;background:var(--bg2);border-radius:6px;overflow:hidden">
+              <div [style.width]="getAovPct(s.id)+'%'" [style.background]="s.color+'44'"
+                   style="height:100%;border-radius:6px;transition:width 1.3s ease"></div>
+            </div>
+            <span style="font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;width:50px;text-align:right;color:var(--t3)">
+              {{ data.agg()[s.id].avg_aov | number:'1.0-0' }}
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:10px;color:var(--t4);width:40px">Net</span>
+            <div style="flex:1;height:11px;background:var(--bg2);border-radius:6px;overflow:hidden">
+              <div [style.width]="getNetAovPct(s.id)+'%'" [style.background]="s.color"
+                   style="height:100%;border-radius:6px;transition:width 1.3s ease"></div>
+            </div>
+            <span style="font-size:12px;font-weight:800;font-family:'JetBrains Mono',monospace;width:50px;text-align:right" [style.color]="s.color">
+              {{ getNetAov(s.id) | number:'1.0-0' }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══ FORMULAS ═══════════════════════════════════════════════════════════ -->
+  <div class="fn-box">
+    <div class="fn-title">📐 Feature Definitions</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="fn-item"><code>avg_discount</code><span>Average % discount applied across all orders</span></div>
+      <div class="fn-item"><code>aov</code><span>Total spend ÷ number of orders (avg ticket size in KWD)</span></div>
+      <div class="fn-item"><code>net_aov</code><span>AOV × (1 − discount) — revenue kept after discount</span></div>
+      <div class="fn-item"><code>price_band</code><span>High ≥500 · Mid 100–499 · Low &lt;100 KWD lifetime</span></div>
+    </div>
+  </div>
+
+</div>

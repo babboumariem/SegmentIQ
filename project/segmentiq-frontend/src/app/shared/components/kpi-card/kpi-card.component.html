@@ -1,0 +1,12 @@
+<div class="kpi" [style.--kc]="color" [style.--kb]="colorBg">
+      <div class="kpi-header">
+        <div class="kpi-label">{{ label }}</div>
+        <div class="kpi-tag">{{ tag }}</div>
+      </div>
+      <div class="kpi-value" [innerHTML]="value"></div>
+      <div class="kpi-footer">
+        <span class="kpi-icon">{{ icon }}</span>
+        <span class="kpi-sub">{{ sub }}</span>
+      </div>
+      <div class="kpi-accent-bar"></div>
+    </div>

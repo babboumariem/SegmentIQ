@@ -1,0 +1,73 @@
+@if (!user()) {
+      <app-login (loggedIn)="onLogin($event)" />
+    } @else {
+      <div class="shell">
+        <app-sidebar [role]="user()?.role ?? 'analyst'" (logout)="onLogout()" />
+        <div class="main-col">
+          <app-topbar />
+
+@if (data.applyStatus() === 'loading') {
+            <div class="global-apply-banner">
+              <div class="gab-inner">
+                <div class="gab-badge">
+                  <span class="gab-badge-dot"></span>
+                  <span class="gab-badge-text">K-Means · K={{ data.appliedK() }}</span>
+                </div>
+                <span class="gab-label">{{ data.applyProgressLabel() }}</span>
+                <div class="gab-track">
+                  <div class="gab-fill" [style.width.%]="data.applyProgress()"></div>
+                </div>
+                <span class="gab-pct">{{ data.applyProgress() | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+          }
+          @if (data.applyStatus() === 'success') {
+            <div class="global-apply-banner global-apply-banner--success">
+              <div class="gab-inner">
+                <div class="gab-success-icon">✓</div>
+                <span class="gab-success-text">
+                  Retrain complete — <span class="gab-success-k">K = {{ data.appliedK() }}</span> applied
+                  @if (data.applyIsMock()) { <span class="gab-mock-tag">demo</span> }
+                </span>
+              </div>
+            </div>
+          }
+
+          <main class="page-content">
+            @if (data.loading()) {
+              <div class="splash-loader">
+                <div class="sl-spinner"></div>
+                <div class="sl-text">Loading SegmentIQ data…</div>
+              </div>
+            } @else if (data.error()) {
+              <div class="splash-error">
+                <div class="se-icon">⚠️</div>
+                <div class="se-title">Cannot reach backend</div>
+                <div class="se-msg">{{ data.error() }}</div>
+                <div class="se-hint">Make sure the FastAPI server is running on <code>http://localhost:8000</code></div>
+                <button class="se-retry" (click)="data.loadAll()">Retry</button>
+              </div>
+            } @else {
+              @switch (nav.current()) {
+                @case ('dashboard')  { <app-dashboard /> }
+                @case ('segments')   { <app-segments />  }
+                @case ('customers')  { <app-customers /> }
+                @case ('report')     { <app-report />    }
+                @case ('behavior')   { <app-behavior />  }
+                @case ('params')     { @if (user()?.role === 'admin') { <app-params /> } @else { <app-dashboard /> } }
+                @case ('spending-value')       { <app-spending-value />      }
+                @case ('frequency')       { <app-frequency />      }
+                @case ('category-affinity')       { <app-category-affinity />      }
+                @case ('seasonality')       { <app-seasonality />      }
+                @case ('price-discount')       { <app-price-discount />      }
+                @case ('returns')       { <app-returns />      }
+                @case ('normalization')       { <app-normalization />      }
+                @case ('campaigns')  { <app-campaigns /> }
+                @default             { <app-dashboard /> }
+              }
+            }
+          </main>
+        </div>
+      </div>
+      <app-chatbot />
+    }

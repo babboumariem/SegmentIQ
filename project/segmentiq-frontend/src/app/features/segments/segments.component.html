@@ -1,0 +1,98 @@
+<div class="page">
+
+    <!-- Segment cards -->
+    @for (s of data.segments(); track s.id) {
+      <div class="seg-card"
+           [id]="'seg-' + s.id"
+           [style.--accent]="s.color"
+           [style.--accentBg]="s.colorBg"
+           [class.seg-card--highlighted]="nav.targetSegmentId() === s.id">
+
+        <!-- ── Top row: identity + share ── -->
+        <div class="card-top">
+          <div class="seg-icon" [style.background]="s.colorBg">{{ s.icon }}</div>
+
+          <div class="seg-identity">
+            <div class="seg-name" [style.color]="s.color">{{ s.name }}</div>
+            <div class="seg-desc">{{ s.description }}</div>
+            <div class="seg-meta">
+              <span class="badge" [style.background]="s.colorBg" [style.color]="s.color">
+                {{ data.segmentCounts()[s.id] | number }} customers
+              </span>
+              <span class="badge badge--muted">
+                {{ sharePct(s.id) }}% of base
+              </span>
+            </div>
+          </div>
+
+          <div class="share-pill" [style.color]="s.color" [style.background]="s.colorBg">
+            <span class="share-pct">{{ sharePct(s.id) }}%</span>
+            <span class="share-lbl">share</span>
+          </div>
+        </div>
+
+        <!-- ── KPI row ── -->
+        <div class="kpi-row">
+          @for (kpi of getKpis(s.id); track kpi.label) {
+            <div class="kpi">
+              <div class="kpi-label">{{ kpi.label }}</div>
+              <div class="kpi-value" [style.color]="kpi.color || 'var(--t1)'">{{ kpi.value }}</div>
+              @if (kpi.sub) { <div class="kpi-sub">{{ kpi.sub }}</div> }
+            </div>
+          }
+        </div>
+
+        <!-- ── Revenue bar ── -->
+        <div class="rev-row">
+          <span class="rev-label">Revenue</span>
+          <div class="rev-track">
+            <div class="rev-fill"
+                 [style.width]="getRevPct(s.id) + '%'"
+                 [style.background]="s.color">
+            </div>
+          </div>
+          <span class="rev-val" [style.color]="s.color">{{ getRevKwd(s.id) }} KWD</span>
+          <span class="rev-share badge badge--muted">{{ getRevPct(s.id) }}%</span>
+        </div>
+
+        <!-- ── Bottom row: categories + actions ── -->
+        <div class="card-bottom">
+
+          <!-- Top categories -->
+          <div class="cats-section">
+            <div class="section-title">Top categories</div>
+            <div class="cats-list">
+              @for (cat of getTopCats(s.id); track cat.name) {
+                <div class="cat-row">
+                  <span class="cat-name">{{ cat.name }}</span>
+                  <div class="cat-track">
+                    <div class="cat-fill"
+                         [style.width]="cat.pct + '%'"
+                         [style.background]="s.color + 'bb'">
+                    </div>
+                  </div>
+                  <span class="cat-pct">{{ cat.pct }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Recommended actions -->
+          <div class="actions-section">
+            <div class="section-title">Recommended actions</div>
+            <div class="actions-list">
+              @for (action of data.actions()[s.id]; track action) {
+                <div class="action-chip"
+                     [style.background]="s.colorBg"
+                     [style.border-color]="s.color + '44'"
+                     [style.color]="s.color">
+                  {{ action }}
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </div>
+    }
+  </div>

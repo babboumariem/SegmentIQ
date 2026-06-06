@@ -1,0 +1,245 @@
+<div class="rep">
+
+    <!-- ══════ HEADER BAND ══════ -->
+    <div class="rep-header">
+      <div class="rh-left">
+        <div class="rh-eyebrow">SEGMENTIQ · ANALYTICS</div>
+        <div class="rh-title">Analytics Report</div>
+        <div class="rh-sub">
+          Customer segmentation · RFM analysis · Real-time data
+          @if (data.refDate()) {
+            <span class="rh-freshness">
+              <span class="freshness-dot"></span>
+              Data as of {{ data.refDate() }}
+            </span>
+          }
+        </div>
+      </div>
+      <div class="rh-right">
+        <a class="export-btn" [href]="api.csvUrls.sample" target="_blank">
+          <span class="export-icon">⬇</span> Export CSV
+        </a>
+        <button class="export-btn pdf-btn" (click)="exportPdf()" [disabled]="exporting">
+          <span class="export-icon">{{ exporting ? '⏳' : '📄' }}</span>
+          {{ exporting ? 'Generating...' : 'Export PDF' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ KPI STRIP ══════ -->
+    <div id="pdf-kpis" class="rep-kpis">
+
+      <!-- Revenue -->
+      <div class="rk" style="--kc:var(--am);--kb:rgba(224,120,32,.08)">
+        <div class="rk-top">
+          <div class="rk-icon-wrap" style="background:rgba(224,120,32,.12)">💰</div>
+          <div class="rk-trend up">↑ Total Revenue</div>
+        </div>
+        <div class="rk-val">{{ data.totalRevenue() | number:'1.0-0' }}<span class="rk-unit">KWD</span></div>
+        <div class="rk-bar"><div class="rk-bar-fill" style="width:100%;background:var(--kc)"></div></div>
+      </div>
+
+      <!-- Customers -->
+      <div class="rk" style="--kc:#2563eb;--kb:rgba(37,99,235,.08)">
+        <div class="rk-top">
+          <div class="rk-icon-wrap" style="background:rgba(37,99,235,.12)">👥</div>
+          <div class="rk-trend">Total Customers</div>
+        </div>
+        <div class="rk-val">{{ data.totalCustomers() | number:'1.0-0' }}<span class="rk-unit">customers</span></div>
+        <div class="rk-bar"><div class="rk-bar-fill" style="width:80%;background:var(--kc)"></div></div>
+      </div>
+
+      <!-- Fulfilled Orders (returns excluded) -->
+      <div class="rk" style="--kc:#059669;--kb:rgba(5,150,105,.08)">
+        <div class="rk-top">
+          <div class="rk-icon-wrap" style="background:rgba(5,150,105,.12)">📦</div>
+          <div class="rk-trend">Fulfilled Orders</div>
+        </div>
+        <div class="rk-val">{{ data.totalFulfilledOrders() | number:'1.0-0' }}<span class="rk-unit">orders</span></div>
+        <div class="rk-sub-note">Returns excluded · {{ data.summary().total_returns | number }} returned</div>
+        <div class="rk-bar"><div class="rk-bar-fill" style="width:70%;background:var(--kc)"></div></div>
+      </div>
+
+      <!-- Returns -->
+      <div class="rk" style="--kc:#dc2626;--kb:rgba(220,38,38,.08)">
+        <div class="rk-top">
+          <div class="rk-icon-wrap" style="background:rgba(220,38,38,.12)">↩️</div>
+          <div class="rk-trend down">Total Returns</div>
+        </div>
+        <div class="rk-val">{{ data.summary().total_returns | number:'1.0-0' }}<span class="rk-unit">returns</span></div>
+        <div class="rk-sub-note">{{ returnRatePct }}% of gross orders</div>
+        <div class="rk-bar">
+          <div class="rk-bar-fill" [style.width]="returnRatePct + '%'" style="background:var(--kc)"></div>
+        </div>
+      </div>
+
+      <!-- True AOV (corrected) -->
+      <div class="rk" style="--kc:#7c3aed;--kb:rgba(124,58,237,.08)">
+        <div class="rk-top">
+          <div class="rk-icon-wrap" style="background:rgba(124,58,237,.12)">🎯</div>
+          <div class="rk-trend">Avg Order Value</div>
+        </div>
+        <div class="rk-val">{{ data.overallAov() | number:'1.2-2' }}<span class="rk-unit">KWD</span></div>
+        <div class="rk-sub-note">On fulfilled orders only</div>
+        <div class="rk-bar"><div class="rk-bar-fill" style="width:60%;background:var(--kc)"></div></div>
+      </div>
+
+      <!-- YoY Growth — value-driven bar width -->
+      <div class="rk"
+           [style.--kc]="data.yoyPositive() ? '#059669' : '#dc2626'"
+           [style.--kb]="data.yoyPositive() ? 'rgba(5,150,105,.08)' : 'rgba(220,38,38,.08)'">
+        <div class="rk-top">
+          <div class="rk-icon-wrap"
+               [style.background]="data.yoyPositive() ? 'rgba(5,150,105,.12)' : 'rgba(220,38,38,.12)'">📈</div>
+          <div class="rk-trend"
+               [class.up]="data.yoyPositive()"
+               [class.down]="!data.yoyPositive()">Year-over-Year Growth</div>
+        </div>
+        <div class="rk-val"
+             [style.color]="data.yoyPositive() ? '#059669' : '#dc2626'">
+          {{ data.yoyGrowthStr() }}
+        </div>
+        @if (data.yoyPct() !== null) {
+          <div class="rk-sub-note">
+            Last 12M: {{ data.summary().yoy_last12 | number:'1.0-0' }} KWD
+          </div>
+        }
+        <!-- Bar width mapped to real value, capped at 100% -->
+        <div class="rk-bar">
+          <div class="rk-bar-fill"
+               [style.width]="yoyBarWidth + '%'"
+               [style.background]="data.yoyPositive() ? '#059669' : '#dc2626'"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════ CHARTS ROW ══════ -->
+    <div class="section-divider">
+      <span class="sd-line"></span>
+      <span class="sd-text">SEGMENT METRICS — BAR CHARTS</span>
+      <span class="sd-line"></span>
+    </div>
+    <div id="pdf-charts" class="rep-charts">
+      <div class="rc">
+        <div class="rc-head">
+          <div class="rc-title-wrap">
+            <div class="rc-accent" style="background:var(--am)"></div>
+            <div>
+              <div class="rc-title">Avg Spend</div>
+              <div class="rc-sub">KWD per customer</div>
+            </div>
+          </div>
+        </div>
+        <div class="rc-body"><canvas #spendCanvas></canvas></div>
+      </div>
+      <div class="rc">
+        <div class="rc-head">
+          <div class="rc-title-wrap">
+            <div class="rc-accent" style="background:#2563eb"></div>
+            <div>
+              <div class="rc-title">Avg Orders</div>
+              <div class="rc-sub">per customer</div>
+            </div>
+          </div>
+        </div>
+        <div class="rc-body"><canvas #ordCanvas></canvas></div>
+      </div>
+      <div class="rc">
+        <div class="rc-head">
+          <div class="rc-title-wrap">
+            <div class="rc-accent" style="background:#059669"></div>
+            <div>
+              <div class="rc-title">Avg Recency</div>
+              <div class="rc-sub">days since last order ↓ better</div>
+            </div>
+          </div>
+        </div>
+        <div class="rc-body"><canvas #recCanvas></canvas></div>
+      </div>
+      <div class="rc">
+        <div class="rc-head">
+          <div class="rc-title-wrap">
+            <div class="rc-accent" style="background:#dc2626"></div>
+            <div>
+              <div class="rc-title">Return Rate</div>
+              <div class="rc-sub">% of orders returned ↓ better</div>
+            </div>
+          </div>
+        </div>
+        <div class="rc-body"><canvas #retCanvas></canvas></div>
+      </div>
+    </div>
+
+    <!-- ══════ REVENUE SHARE + CATEGORY ══════ -->
+    <div id="pdf-revenue" class="rep-2col">
+
+      <!-- Revenue Share by Segment — exact values from backend -->
+      <div class="rep-section rs-panel">
+        <div class="rs-head">
+          <div class="rs-head-left">
+            <div class="rs-title">Revenue Share by Segment</div>
+            <div class="rs-sub">Total revenue distribution · exact figures</div>
+          </div>
+          <div class="rs-total-badge">{{ (data.totalRevenue() / 1_000_000).toFixed(2) }}M KWD</div>
+        </div>
+        <div class="rs-rows">
+          @for (s of data.segments(); track s.id) {
+            <div class="rs-row">
+              <div class="rs-seg-label">
+                <span class="rs-dot" [style.background]="s.color"></span>
+                <span class="rs-icon">{{ s.icon }}</span>
+                <span class="rs-seg-name" [style.color]="s.color">{{ s.name }}</span>
+              </div>
+              <div class="rs-bar-wrap">
+                <div class="rs-bar-track">
+                  <div class="rs-bar-fill"
+                       [style.width]="data.getSegRevPct(s.id) + '%'"
+                       [style.background]="s.color"
+                       [style.box-shadow]="'0 2px 8px ' + s.color + '55'"></div>
+                </div>
+              </div>
+              <div class="rs-row-val">
+                <span class="rs-val-amount" [style.color]="s.color">{{ data.getSegRevStr(s.id) }}</span>
+                <span class="rs-val-pct">{{ data.getSegRevPct(s.id) }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Category Revenue — exact from backend -->
+      <div class="rep-section rs-panel">
+        <div class="rs-head">
+          <div class="rs-head-left">
+            <div class="rs-title">Category Revenue</div>
+            <div class="rs-sub">KWD total · {{ data.categoryRevenue().length }} categories</div>
+          </div>
+        </div>
+        <div class="rs-rows">
+          @for (cat of data.categoryRevenue(); track cat.name; let i = $index) {
+            <div class="rs-row">
+              <div class="rs-seg-label">
+                <span class="rs-rank-badge">{{ i + 1 }}</span>
+                <span class="rs-seg-name" style="color:var(--t2)">{{ cat.name }}</span>
+              </div>
+              <div class="rs-bar-wrap">
+                <div class="rs-bar-track">
+                  <div class="rs-bar-fill" [style.width]="cat.bar + '%'"
+                       style="background:linear-gradient(90deg,var(--am),#ffaa40);box-shadow:0 2px 8px rgba(224,120,32,.4)"></div>
+                </div>
+              </div>
+              <div class="rs-row-val">
+                <span class="rs-val-amount" style="color:var(--am)">
+                  {{ cat.rev }}K<span class="rk-unit" style="font-size:10px;margin-left:2px">KWD</span>
+                </span>
+                <span class="rs-val-pct">{{ cat.pct }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+  </div>

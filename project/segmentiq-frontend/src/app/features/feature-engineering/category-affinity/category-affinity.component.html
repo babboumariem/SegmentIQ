@@ -1,0 +1,97 @@
+<div class="fe" style="padding:20px 28px 56px;animation:fi .3s ease both">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+  <!-- ══ DIVERSITY vs TOP-3 CONCENTRATION ═════════════════════════════════════
+       Left:  diversity % — how broadly does each segment shop?
+       Right: top-3 share % — how concentrated is each segment's spend?
+       These two metrics tell opposite stories → good to compare side by side.
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-title">📊 Diversity vs Concentration</div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <div class="ct">Category Diversity Score</div>
+          <div class="cs">unique_cats / total_cats — higher = generalist buyer</div>
+        </div>
+        <div class="chart-badge" style="background:rgba(5,150,105,.1);color:#059669">diversity %</div>
+      </div>
+      <canvas #divCanvas style="width:100%;display:block;height:260px"></canvas>
+      <div class="chart-note">⬆ High diversity = shops across many categories. Low = niche/specialist.</div>
+    </div>
+    <div class="card">
+      <div class="chart-head">
+        <div>
+          <div class="ct">Top-3 Category Concentration</div>
+          <div class="cs">sum of top-3 category share — higher = more focused buyer</div>
+        </div>
+        <div class="chart-badge" style="background:rgba(124,58,237,.1);color:#7c3aed">top-3 %</div>
+      </div>
+      <canvas #top3Canvas style="width:100%;display:block;height:260px"></canvas>
+      <div class="chart-note">⬆ High concentration = most of the spend is in just 3 categories.</div>
+    </div>
+  </div>
+
+  <!-- ══ CROSS-SEGMENT HEATMAP ═════════════════════════════════════════════════
+       One table — category rows × segment columns.
+       Darker cell = that segment buys more from that category.
+       Avg column = average share across all segments.
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="section-title">🔥 Category × Segment Heatmap</div>
+  <div class="card" style="margin-bottom:14px">
+    <div style="font-size:10px;color:var(--t4);margin-bottom:14px">
+      % of orders per category · darker = stronger affinity · Avg = across all segments
+    </div>
+    <div style="overflow-x:auto">
+      <table class="heat-table">
+        <thead>
+          <tr>
+            <th class="heat-th-cat">Category</th>
+            @for (s of data.segments(); track s.id) {
+              <th class="heat-th-seg" [style.color]="s.color">{{ s.icon }} {{ s.name }}</th>
+            }
+            <th class="heat-th-seg" style="color:var(--t3)">Avg</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of crossCats; track cat.name; let odd=$odd) {
+            <tr [class.heat-row-odd]="odd">
+              <td class="heat-cat-name">
+                <span class="cat-rank">{{ $index + 1 }}</span>
+                {{ cat.name }}
+              </td>
+              @for (s of data.segments(); track s.id) {
+                <td class="heat-cell">
+                  <div class="heat-pill"
+                       [style.background]="getHeatBg(s.id, cat.name, s.color)"
+                       [style.color]="getHeatFg(s.id, cat.name)">
+                    {{ getCatPct(s.id, cat.name) }}%
+                  </div>
+                </td>
+              }
+              <td class="heat-cell">
+                <div class="heat-pill" style="background:var(--bg2);color:var(--t2)">
+                  {{ getAvgCatPct(cat.name) }}%
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ FEATURE FORMULAS ══════════════════════════════════════════════════════ -->
+  <div class="fn-box">
+    <div class="fn-title">📐 Feature Engineering Formulas · Category Affinity</div>
+    <div class="fn-grid2">
+      <div class="fn-item"><code>top_category</code><span>argmax Σ net_kwd grouped by category per customer</span></div>
+      <div class="fn-item"><code>unique_cats</code><span>count(distinct category) across all customer orders</span></div>
+      <div class="fn-item"><code>diversity</code><span>unique_cats / {{ data.categories().length }} total categories ∈ [0, 1]</span></div>
+      <div class="fn-item"><code>cat_entropy</code><span>−Σ p_i·log(p_i) normalized by log(N) · Shannon entropy</span></div>
+      <div class="fn-item"><code>top3_share</code><span>sum of top-3 category % per customer · concentration signal</span></div>
+      <div class="fn-item"><code>{{ data.categories().length }} categories</code><span>{{ data.categories().slice(0, 6).join(', ') }}{{ data.categories().length > 6 ? '…' : '' }}</span></div>
+    </div>
+  </div>
+
+</div>

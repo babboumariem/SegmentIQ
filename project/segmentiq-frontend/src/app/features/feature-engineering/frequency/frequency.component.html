@@ -1,0 +1,130 @@
+<div class="fe" style="padding:20px 28px 56px;animation:fi .3s ease both">
+
+  <!-- ── KPI STRIP ───────────────────────────────────────────────────────── -->
+  <div class="kpi-strip">
+
+    <!-- Top Order Count -->
+    <div class="kpi-card" style="--kc:#f59e0b;--kg:rgba(245,158,11,.18),rgba(245,158,11,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(245,158,11,.15)">
+          <span class="kc-icon">🔄</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Top Order Count</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ topOrdersVal }}<span class="kc-unit">orders</span></div>
+      <div class="kc-sub">{{ topOrdersSeg }}</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" [style.width]="ordersBarPct+'%'" style="background:#f59e0b"></div></div>
+    </div>
+
+    <!-- Global Avg Recency -->
+    <div class="kpi-card" style="--kc:#8b5cf6;--kg:rgba(139,92,246,.18),rgba(139,92,246,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(139,92,246,.15)">
+          <span class="kc-icon">⏱️</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Avg Recency</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ globalAvgRecency }}<span class="kc-unit">avg</span></div>
+      <div class="kc-sub">weighted across all segments</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" [style.width]="recencyBarPct+'%'" style="background:#8b5cf6"></div></div>
+    </div>
+
+    <!-- Best IPT -->
+    <div class="kpi-card" style="--kc:#059669;--kg:rgba(5,150,105,.18),rgba(5,150,105,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(5,150,105,.15)">
+          <span class="kc-icon">⚡</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Best IPT</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ bestIptVal }}<span class="kc-unit">↓ better</span></div>
+      <div class="kc-sub">{{ bestIptSeg }}</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" [style.width]="iptBarPct+'%'" style="background:#059669"></div></div>
+    </div>
+
+    <!-- Avg Active Months -->
+    <div class="kpi-card" style="--kc:#3b82f6;--kg:rgba(59,130,246,.18),rgba(59,130,246,.04)">
+      <div class="kc-glow"></div>
+      <div class="kc-top">
+        <div class="kc-icon-wrap" style="--ki:rgba(59,130,246,.15)">
+          <span class="kc-icon">📅</span>
+        </div>
+        <div class="kc-title-badge">
+          <div class="kc-label">Avg Active Months</div>
+        </div>
+      </div>
+      <div class="kc-value">{{ globalAvgActiveMonths }}</div>
+      <div class="kc-sub">weighted across all segments</div>
+      <div class="kc-bar-track"><div class="kc-bar-fill" [style.width]="activeMonthsBarPct+'%'" style="background:#3b82f6"></div></div>
+    </div>
+
+  </div>
+
+  <!-- ── CHARTS ROW ─────────────────────────────────────────────────────── -->
+  <div class="grid2" style="margin-top:24px">
+    <div class="card f52-card">
+      <div class="f52-ct">
+        <span class="f52-ct-icon">🔄</span>
+        <div>
+          <div class="ct">Order Count <span class="cs">avg per customer</span></div>
+          <div class="f52-ct-sub">Higher = more loyal &amp; engaged buyers</div>
+        </div>
+      </div>
+      <canvas #ordCanvas></canvas>
+    </div>
+    <div class="card f52-card">
+      <div class="f52-ct">
+        <span class="f52-ct-icon">⚡</span>
+        <div>
+          <div class="ct">IPT — Inter-Purchase Time <span class="cs">avg days between orders ↓ better</span></div>
+          <div class="f52-ct-sub">Lower IPT = customers return faster</div>
+        </div>
+      </div>
+      <canvas #iptCanvas></canvas>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card f52-card">
+      <div class="f52-ct">
+        <span class="f52-ct-icon">⏱️</span>
+        <div>
+          <div class="ct">Recency <span class="cs">days since last order ↓ better</span></div>
+          <div class="f52-ct-sub">Lower = more recently active customer</div>
+        </div>
+      </div>
+      <canvas #recCanvas></canvas>
+    </div>
+    <div class="card f52-card">
+      <div class="f52-ct">
+        <span class="f52-ct-icon">📅</span>
+        <div>
+          <div class="ct">Active Months <span class="cs">months with ≥1 order</span></div>
+          <div class="f52-ct-sub">Consistency of purchase history</div>
+        </div>
+      </div>
+      <canvas #actCanvas></canvas>
+    </div>
+  </div>
+
+  <!-- ── FORMULAS ──────────────────────────────────────────────────────── -->
+  <div class="fn-box">
+    <div class="fn-title">📐 Formulas — Frequency &amp; Recency Metrics</div>
+    <div class="fn-grid">
+      <div class="fn-item"><code>Order Count</code><span>order_count = COUNT(order_id) per customer · measures loyalty and engagement</span></div>
+      <div class="fn-item"><code>Recency</code><span>recency = ref_date − MAX(order_date) · in days · lower = more recently active</span></div>
+      <div class="fn-item"><code>IPT</code><span>ipt = MEAN(date[i] − date[i−1]) · days between consecutive orders · lower = faster return</span></div>
+      <div class="fn-item"><code>Active Months</code><span>active_months = NUNIQUE(months with ≥1 order) · measures consistency of purchase activity over time</span></div>
+    </div>
+  </div>
+
+</div>

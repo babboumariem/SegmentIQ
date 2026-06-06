@@ -1,0 +1,150 @@
+<div class="beh">
+
+
+    <div class="beh-kpis">
+      @for (k of kpis; track k.id) {
+        <div class="bk" [style.--kc]="k.color">
+          <div class="bk-header">
+            <span class="bk-icon">{{ k.icon }}</span>
+            <span class="bk-category">{{ k.category }}</span>
+          </div>
+          <div class="bk-title">{{ k.title }}</div>
+          <div class="bk-val-row">
+            <span class="bk-val" [style.color]="k.color">{{ k.value }}</span>
+            <span class="bk-unit" [style.color]="k.color + 'aa'">{{ k.unit }}</span>
+          </div>
+          <div class="bk-desc">{{ k.desc }}</div>
+          <div class="bk-footer">
+            <div class="bk-badge" [style.background]="k.color + '18'" [style.color]="k.color" [style.border]="'1px solid ' + k.color + '33'">
+              {{ k.badge }}
+            </div>
+            <div class="bk-trend" [style.color]="k.color">{{ k.trend }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="beh-section-label">
+      <span class="bsl-dot"></span>
+      CLV Trajectory &amp; Spend Momentum — by Segment
+    </div>
+
+    <div class="beh-grid2col">
+
+      <div class="bc">
+        <div class="bc-head">
+          <div class="bc-head-left">
+            <div class="bc-title">CLV Slope</div>
+            <div class="bc-sub">Customer value growth · positive = rising · negative = value loss</div>
+          </div>
+          <div class="bc-unit-badge">KWD / mo²</div>
+        </div>
+        <div class="seg-legend">
+          @for (s of segLegend; track s.id) {
+            <span class="sl-item">
+              <span class="sl-dot" [style.background]="s.color"></span>
+              <span class="sl-name">{{ s.name }}</span>
+            </span>
+          }
+        </div>
+        <div class="bc-chart-wrap">
+          <div class="bc-axis-y-label">KWD/mo²</div>
+          <canvas #clvCanvas class="bc-canvas"></canvas>
+        </div>
+        <div class="bc-axis-x-label">SEGMENT</div>
+      </div>
+
+      <div class="bc">
+        <div class="bc-head">
+          <div class="bc-head-left">
+            <div class="bc-title">Spend Velocity vs CLV Slope</div>
+            <div class="bc-sub">X: spend velocity (KWD/month) · Y: CLV slope · bubble size = projected annual value</div>
+          </div>
+          <div class="bc-unit-badge">KWD / mo</div>
+        </div>
+        <div class="seg-legend">
+          @for (s of segLegend; track s.id) {
+            <span class="sl-item">
+              <span class="sl-dot" [style.background]="s.color"></span>
+              <span class="sl-name">{{ s.name }}</span>
+            </span>
+          }
+        </div>
+        <div class="bc-chart-wrap">
+          <canvas #bubbleCanvas class="bc-canvas"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="beh-section-label">
+      <span class="bsl-dot"></span>
+      Loyalty, Profitability &amp; Future Value — by Segment
+    </div>
+
+    <div class="beh-grid2col">
+
+      <div class="bc">
+        <div class="bc-head">
+          <div class="bc-head-left">
+            <div class="bc-title">Inter-Purchase Time</div>
+            <div class="bc-sub">Average days between two purchases · ↓ shorter = more loyal</div>
+          </div>
+          <div class="bc-unit-badge">days</div>
+        </div>
+        <canvas #iptCanvas class="bc-canvas"></canvas>
+      </div>
+
+      <div class="bc">
+        <div class="bc-head">
+          <div class="bc-head-left">
+            <div class="bc-title">Projected Annual Value</div>
+            <div class="bc-sub">Projected annual value · based on current spend trend</div>
+          </div>
+          <div class="bc-unit-badge">KWD / yr</div>
+        </div>
+        <canvas #projCanvas class="bc-canvas"></canvas>
+      </div>
+
+    </div>
+
+    <div class="beh-section-label">
+      <span class="bsl-dot"></span>
+      Lifespan &amp; Momentum — by Segment
+    </div>
+
+    <div class="beh-grid2col">
+
+      <div class="bc">
+        <div class="bc-head">
+          <div class="bc-head-left">
+            <div class="bc-title">Customer Lifespan</div>
+            <div class="bc-sub">Customer lifetime in months (first → last purchase) by segment</div>
+          </div>
+          <div class="bc-unit-badge">months</div>
+        </div>
+        <div class="bc-chart-wrap">
+          <div class="bc-axis-y-label">MONTHS</div>
+          <canvas #lifeCanvas class="bc-canvas"></canvas>
+        </div>
+        <div class="bc-axis-x-label">SEGMENT</div>
+      </div>
+
+      <div class="bc">
+        <div class="bc-head">
+          <div class="bc-head-left">
+            <div class="bc-title">Net Revenue per Customer</div>
+            <div class="bc-sub">Average net revenue after returns &amp; refunds · by segment</div>
+          </div>
+          <div class="bc-unit-badge">KWD net</div>
+        </div>
+        <div class="bc-chart-wrap">
+          <div class="bc-axis-y-label">KWD</div>
+          <canvas #netCanvas class="bc-canvas"></canvas>
+        </div>
+        <div class="bc-axis-x-label">SEGMENT</div>
+      </div>
+
+    </div>
+
+  </div>

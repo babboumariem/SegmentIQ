@@ -1,0 +1,58 @@
+:host { display: block; }
+  @keyframes fi { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:none } }
+  @keyframes grow { from { width:0 } to { width:var(--w) } }
+
+  .fe { font-family:'Plus Jakarta Sans',sans-serif; color:var(--tx); }
+
+  /* ── KPI Cards ── */
+  .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  @media(max-width:900px){ .kpi-row { grid-template-columns:repeat(2,1fr); } }
+  .kpi { background:var(--card); border:1px solid var(--bd); border-radius:var(--rl); padding:16px 18px; box-shadow:var(--sh); transition:.18s; }
+  .kpi:hover { box-shadow:var(--shm); transform:translateY(-1px); }
+  .kpi-lbl  { font-size:11px; color:var(--t3); margin-bottom:6px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .kpi-val  { font-size:26px; font-weight:800; letter-spacing:-1px; line-height:1; }
+  .kpi-sub  { font-size:11px; margin-top:5px; font-weight:600; }
+
+  /* ── Cards ── */
+  .card { background:var(--card); border:1px solid var(--bd); border-radius:var(--rl); padding:20px 22px; box-shadow:var(--sh); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  @media(max-width:800px){ .grid2 { grid-template-columns:1fr; } }
+
+  /* ── Card title ── */
+  .ct  { font-size:13px; font-weight:700; color:var(--tx); margin-bottom:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .cs  { font-size:11px; font-weight:500; color:var(--t3); margin-left:auto; }
+
+  /* ── Donut ── */
+  .donut-pos    { position:relative; display:inline-block; }
+  .donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+
+  /* ── Bar rows ── */
+  .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .bar-row:last-child { margin-bottom:0; }
+  .br-name { font-size:12px; font-weight:600; color:var(--t2); width:120px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .br-wrap { flex:1; height:8px; background:var(--bg2); border-radius:4px; overflow:hidden; min-width:40px; }
+  .br-fill { height:100%; border-radius:4px; animation:grow .6s cubic-bezier(.4,0,.2,1) both; }
+  .br-val  { font-size:12px; font-weight:700; width:80px; text-align:right; flex-shrink:0; }
+
+  /* ── Full-width Rates card ── */
+  .rates-card { background:var(--card); border:1px solid var(--bd); border-radius:var(--rl); padding:22px 28px; box-shadow:var(--sh); margin-bottom:14px; }
+  .rates-inner { display:grid; grid-template-columns:1fr 1.5px 1fr; gap:0; align-items:start; }
+  @media(max-width:800px){ .rates-inner { grid-template-columns:1fr; } }
+  .rates-col { display:flex; flex-direction:column; align-items:center; padding:0 24px; }
+  .rates-col:first-child { padding-left:8px; }
+  .rates-col:last-child  { padding-right:8px; }
+  .rates-divider { background:var(--bd); border-radius:2px; align-self:stretch; }
+  .rates-label  { font-size:13px; font-weight:800; margin-bottom:16px; text-align:center; letter-spacing:-.2px; }
+  .rates-legend { display:flex; flex-direction:column; gap:7px; width:100%; max-width:340px; margin-top:20px; align-self:center; }
+  .rates-leg-item { display:flex; align-items:center; gap:10px; padding:8px 14px; border-radius:10px; }
+  .rates-leg-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .rates-leg-name { font-size:12px; font-weight:600; color:var(--tx); flex:1; white-space:nowrap; }
+  .rates-leg-val  { font-size:13px; font-weight:800; margin-left:16px; }
+
+  /* ── Formula box ── */
+  .fn-box   { background:var(--bg); border:1px solid var(--bd); border-radius:var(--rl); padding:16px 20px; margin-top:14px; }
+  .fn-title { font-size:12px; font-weight:700; color:var(--t2); margin-bottom:10px; }
+  .fn-grid  { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  @media(max-width:800px){ .fn-grid { grid-template-columns:repeat(2,1fr); } }
+  .fn-item  { font-size:11.5px; color:var(--t3); line-height:1.5; }
+  .fn-item code { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--am); background:var(--aml); padding:1px 5px; border-radius:4px; }

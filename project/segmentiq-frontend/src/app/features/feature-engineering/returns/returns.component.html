@@ -1,0 +1,143 @@
+<div class="fe" style="padding:20px 28px 48px;animation:fi .3s ease both">
+
+  <!-- ── KPI Strip ── -->
+  <div class="kpi-row">
+
+    <!-- Total Returns -->
+    <div class="kpi">
+      <div class="kpi-lbl">Total Returns</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <div style="font-size:30px;flex-shrink:0;">📦</div>
+        <div>
+          <div class="kpi-val" style="color:#0ea5e9">{{ totalReturns | number }}</div>
+          <div class="kpi-sub" style="color:#0ea5e9">{{ returnRatePct }}% of orders</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Returned -->
+    <div class="kpi">
+      <div class="kpi-lbl">Returned</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <div style="font-size:30px;flex-shrink:0;">↩️</div>
+        <div>
+          <div class="kpi-val" style="color:#059669">{{ returnedCount | number }}</div>
+          <div class="kpi-sub" style="color:#059669">{{ returnedPct }}% of returns</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canceled -->
+    <div class="kpi">
+      <div class="kpi-lbl">Canceled</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <div style="font-size:30px;flex-shrink:0;">🚫</div>
+        <div>
+          <div class="kpi-val" style="color:#ef4444">{{ canceledCount | number }}</div>
+          <div class="kpi-sub" style="color:#ef4444">{{ canceledPct }}% of returns</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refund Amount -->
+    <div class="kpi">
+      <div class="kpi-lbl">Refund Amount</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <div style="font-size:30px;flex-shrink:0;">💰</div>
+        <div>
+          <div class="kpi-val" style="color:#8b5cf6">{{ refundAmountFormatted }}</div>
+          <div class="kpi-sub" style="color:#8b5cf6">total refunded</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Row 2: Return & Refund Rates — full width ── -->
+  <div class="rates-card">
+    <div class="ct">📊 Return &amp; Refund Rates <span class="cs">by segment</span></div>
+
+    <div class="rates-inner">
+
+      <!-- ── Return Rate col ── -->
+      <div class="rates-col">
+        <div class="rates-label" style="color:#0ea5e9;">Return Rate</div>
+        <div class="donut-pos">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="74" fill="none" stroke="var(--bg2)" stroke-width="22"/>
+            @for (s of returnRateDonut; track s.id) {
+              <circle cx="90" cy="90" r="74" fill="none"
+                [attr.stroke]="s.color" stroke-width="22" stroke-linecap="butt"
+                [attr.stroke-dasharray]="s.dashLg"
+                [attr.stroke-dashoffset]="s.offsetLg"
+                style="transition:stroke-dasharray .7s cubic-bezier(.4,0,.2,1)"
+              />
+            }
+          </svg>
+          <div class="donut-center">
+            <div style="font-size:24px;font-weight:800;color:#0ea5e9;letter-spacing:-1px;line-height:1;">{{ avgReturnRate }}%</div>
+            <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">avg</div>
+          </div>
+        </div>
+        <div class="rates-legend">
+          @for (s of returnRateDonut; track s.id) {
+            <div class="rates-leg-item" style="background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.15);">
+              <div class="rates-leg-dot" [style.background]="s.color"></div>
+              <span class="rates-leg-name">{{ s.icon }} {{ s.name }}</span>
+              <span class="rates-leg-val" style="color:#0ea5e9;">{{ s.valuePct }}%</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── Divider ── -->
+      <div class="rates-divider"></div>
+
+      <!-- ── Refund Ratio col ── -->
+      <div class="rates-col">
+        <div class="rates-label" style="color:#8b5cf6;">Refund Ratio</div>
+        <div class="donut-pos">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="74" fill="none" stroke="var(--bg2)" stroke-width="22"/>
+            @for (s of refundRatioDonut; track s.id) {
+              <circle cx="90" cy="90" r="74" fill="none"
+                [attr.stroke]="s.color" stroke-width="22" stroke-linecap="butt"
+                [attr.stroke-dasharray]="s.dashLg"
+                [attr.stroke-dashoffset]="s.offsetLg"
+                style="transition:stroke-dasharray .7s cubic-bezier(.4,0,.2,1)"
+              />
+            }
+          </svg>
+          <div class="donut-center">
+            <div style="font-size:24px;font-weight:800;color:#8b5cf6;letter-spacing:-1px;line-height:1;">{{ avgRefundRatio }}%</div>
+            <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">avg</div>
+          </div>
+        </div>
+        <div class="rates-legend">
+          @for (s of refundRatioDonut; track s.id) {
+            <div class="rates-leg-item" style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.15);">
+              <div class="rates-leg-dot" [style.background]="s.color"></div>
+              <span class="rates-leg-name">{{ s.icon }} {{ s.name }}</span>
+              <span class="rates-leg-val" style="color:#8b5cf6;">{{ s.valuePct }}%</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Formula box ── -->
+  <div class="fn-box">
+    <div class="fn-title">📐 Feature Formulas</div>
+    <div class="fn-grid">
+      <div class="fn-item"><code>return_rate</code> = returned_orders / total_orders per customer</div>
+      <div class="fn-item"><code>refund_ratio</code> = Σ refund_amount / Σ order_amount per customer</div>
+      <div class="fn-item"><code>return_status</code> = Returned (3) | Canceled (4) — the only 2 statuses present</div>
+      <div class="fn-item"><code>return_reason</code> = Note field on the return record (often empty → "Not specified")</div>
+      <div class="fn-item"><code>total_refund_amount</code> = sum of all refunded amounts in KWD</div>
+      <div class="fn-item">Returns with UserID=000…0 are excluded from all calculations (anonymous)</div>
+    </div>
+  </div>
+
+</div>

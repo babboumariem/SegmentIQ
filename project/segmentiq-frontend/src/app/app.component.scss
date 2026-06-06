@@ -1,0 +1,146 @@
+.shell { display: flex; height: 100vh; overflow: hidden; background: var(--bg); }
+    .main-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+    .page-content { flex: 1; overflow-y: auto; overflow-x: hidden; }
+    .splash-loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 16px; }
+    .sl-spinner { width: 40px; height: 40px; border: 3px solid var(--bd); border-top-color: var(--am); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sl-text { font-size: 13px; color: var(--t4); font-family: 'JetBrains Mono', monospace; }
+    .splash-error { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 10px; text-align: center; padding: 32px; }
+    .se-icon  { font-size: 40px; }
+    .se-title { font-size: 18px; font-weight: 800; color: var(--tx); }
+    .se-msg   { font-size: 13px; color: #ef4444; font-family: 'JetBrains Mono', monospace; }
+    .se-hint  { font-size: 12px; color: var(--t4); margin-top: 4px; }
+    .se-hint code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; color: var(--am); }
+    .se-retry { margin-top: 12px; padding: 8px 24px; background: var(--am); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .se-retry:hover { opacity: .88; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL APPLY BANNER  —  thème chaud cohérent avec l'app
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.global-apply-banner {
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  background: var(--bg2, #fdf6ec);
+  border-bottom: 1.5px solid rgba(224,120,32,.18);
+  box-shadow: 0 2px 16px rgba(224,120,32,.08), 0 1px 0 rgba(255,255,255,.9) inset;
+  padding: 0 28px;
+  height: 46px;
+  animation: gab-drop .32s cubic-bezier(.22,1,.36,1) both;
+}
+
+.global-apply-banner--success {
+  background: var(--bg2, #f0fdf7);
+  border-bottom-color: rgba(16,185,129,.2);
+  box-shadow: 0 2px 16px rgba(16,185,129,.07), 0 1px 0 rgba(255,255,255,.9) inset;
+  animation: gab-drop .32s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes gab-drop {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.gab-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+}
+
+/* ── Badge pill gauche ── */
+.gab-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 99px;
+  background: rgba(224,120,32,.1);
+  border: 1px solid rgba(224,120,32,.25);
+  flex-shrink: 0;
+}
+.gab-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--am, #e07820);
+  box-shadow: 0 0 5px rgba(224,120,32,.65);
+  animation: gab-pulse 1.4s ease infinite;
+}
+@keyframes gab-pulse {
+  0%,100% { transform: scale(1);   opacity: 1;  box-shadow: 0 0 5px rgba(224,120,32,.65); }
+  50%      { transform: scale(1.3); opacity: .7; box-shadow: 0 0 9px rgba(224,120,32,.35); }
+}
+.gab-badge-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--am, #e07820);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ── Label étape ── */
+.gab-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t3, rgba(80,50,20,.6));
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Barre centrale ── */
+.gab-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(224,120,32,.1);
+  border-radius: 99px;
+  overflow: hidden;
+  min-width: 120px;
+}
+.gab-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #e07820 0%, #f5a623 45%, #f5c842 80%, #e07820 100%);
+  background-size: 200% 100%;
+  transition: width .55s cubic-bezier(.22,1,.36,1);
+  animation: gab-shimmer 2s linear infinite;
+}
+@keyframes gab-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position:   0% 0; }
+}
+
+/* ── Pourcentage ── */
+.gab-pct {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--am, #e07820);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Success ── */
+.gab-success-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(16,185,129,.12);
+  border: 1px solid rgba(16,185,129,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #059669; font-weight: 800;
+  flex-shrink: 0;
+}
+.gab-success-text {
+  font-size: 12px; font-weight: 500;
+  color: var(--t3, rgba(20,60,40,.7));
+  font-family: 'JetBrains Mono', monospace;
+}
+.gab-success-k { font-weight: 800; color: #059669; }
+.gab-mock-tag {
+  font-size: 10px; padding: 1px 7px; border-radius: 99px;
+  background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.28);
+  color: #b45309; font-weight: 600; margin-left: 4px;
+}

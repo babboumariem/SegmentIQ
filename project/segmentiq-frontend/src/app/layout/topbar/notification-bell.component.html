@@ -1,0 +1,84 @@
+<div class="notif-wrap">
+      <button
+        class="notif-btn"
+        [class.notif-btn--active]="open()"
+        [class.notif-btn--urgent]="notif.hasHigh()"
+        (click)="toggle()"
+        title="Notifications">
+        <span class="notif-icon" [class.notif-icon--shake]="notif.hasHigh()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </span>
+        @if (notif.unreadCount() > 0) {
+          <span class="notif-badge" [class.notif-badge--high]="notif.hasHigh()">
+            {{ notif.unreadCount() > 9 ? '9+' : notif.unreadCount() }}
+          </span>
+        }
+      </button>
+
+      @if (open()) {
+        <div class="notif-panel" (click)="$event.stopPropagation()">
+          <div class="np-header">
+            <div class="np-header-left">
+              <span class="np-title">Notifications</span>
+              @if (notif.unreadCount() > 0) {
+                <span class="np-count-pill">{{ notif.unreadCount() }} new</span>
+              }
+            </div>
+            @if (notif.unreadCount() > 0) {
+              <button class="np-read-all" (click)="markAll()">Mark all read</button>
+            }
+          </div>
+
+          <div class="np-list">
+            @if (notif.notifications().length === 0) {
+              <div class="np-empty">
+                <span class="np-empty-icon">🔔</span>
+                <span class="np-empty-text">All caught up!</span>
+              </div>
+            }
+            @for (n of notif.notifications(); track n.id) {
+              <div class="np-item"
+                   [class.np-item--unread]="!n.read"
+                   [class.np-item--high]="n.priority === 'high' && !n.read"
+                   (click)="onItemClick(n)">
+                @if (!n.read) {
+                  <div class="np-stripe" [ngClass]="'np-stripe--' + n.priority"></div>
+                }
+                <div class="np-icon-wrap" [ngClass]="'np-icon--' + n.category">
+                  <span>{{ n.icon }}</span>
+                </div>
+                <div class="np-content">
+                  <div class="np-item-header">
+                    <span class="np-item-title">{{ n.title }}</span>
+                    <span class="np-item-time">{{ notif.timeAgo(n.time) }}</span>
+                  </div>
+                  <p class="np-item-msg">{{ n.message }}</p>
+                  @if (n.actionLabel && n.actionPage) {
+                    <button class="np-action-btn" [ngClass]="'np-action--' + n.category"
+                            (click)="onAction($event, n)">
+                      {{ n.actionLabel }} →
+                    </button>
+                  }
+                </div>
+                <button class="np-dismiss" (click)="dismiss($event, n.id)" title="Dismiss">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="np-footer">
+            <span class="np-footer-text">
+              {{ notif.notifications().length }} total · powered by SegmentIQ AI
+            </span>
+          </div>
+        </div>
+      }
+    </div>

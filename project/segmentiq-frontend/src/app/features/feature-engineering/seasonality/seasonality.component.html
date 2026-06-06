@@ -1,0 +1,169 @@
+<div class="seasonality-page">
+
+  <!-- ══ TOPBAR ══════════════════════════════════════════════════════════════ -->
+  <div class="seasonality-topbar">
+    <div class="seasonality-topbar-left">
+      <h1 class="seasonality-title">5.4 — Seasonality</h1>
+      <p class="seasonality-subtitle">{{ dateRange }} · peak_month · quarterly share · YoY growth · segment timing</p>
+    </div>
+    <div class="seasonality-kpi-strip">
+      <div class="seasonality-kpi">
+        <div class="seasonality-kpi-lbl">YoY growth</div>
+        <div class="seasonality-kpi-val" [style.color]="yoyGrowthColor">{{ yoyGrowth }}</div>
+      </div>
+      <div class="seasonality-kpi">
+        <div class="seasonality-kpi-lbl">Peak month</div>
+        <div class="seasonality-kpi-val seasonality-kpi-val--sm">{{ peakMonth }}</div>
+      </div>
+      <div class="seasonality-kpi">
+        <div class="seasonality-kpi-lbl">Peak revenue</div>
+        <div class="seasonality-kpi-val">{{ peakRevShort }}<span class="seasonality-kpi-unit"> KWD</span></div>
+      </div>
+      <div class="seasonality-kpi">
+        <div class="seasonality-kpi-lbl">Best quarter</div>
+        <div class="seasonality-kpi-val seasonality-kpi-val--sm" [style.color]="bestQuarterColor">{{ bestQuarterLabel }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ QUARTERLY DISTRIBUTION ══════════════════════════════════════════════ -->
+  <div class="sec-label">Quarterly distribution — last 12 months</div>
+  <div class="q4-grid">
+    @for (q of quarters; track q.label) {
+      <div class="q-card">
+        <div class="q-label" [style.color]="q.color">
+          {{ q.label }}
+          @if (q.pct === bestQuarterPct) {
+            <span class="q-best-pill">Best</span>
+          }
+        </div>
+        <div class="q-months">{{ q.months }}</div>
+        <div class="q-amount">{{ q.revFormatted }}<span class="q-unit"> KWD</span></div>
+        <div class="q-track"><div class="q-fill" [style.width]="q.pct+'%'" [style.background]="q.color"></div></div>
+        <div class="q-pct" [style.color]="q.color">{{ q.pct }}%</div>
+
+        <!-- ── Top 3 products sold ── -->
+        @if (getTopProductsForQuarter(q.label).length) {
+          <div class="q-top-products-section">
+            <div class="q-top-products-title">🏆 Top 3 products sold</div>
+            @for (prod of getTopProductsForQuarter(q.label); track prod.product_id; let i = $index) {
+              <div class="q-top-product-row">
+                <span class="q-top-prod-rank" [style.color]="q.color">{{ i + 1 }}</span>
+                <span class="q-top-prod-name" [title]="prod.name">{{ prod.name }}</span>
+                <span class="q-top-prod-share" [style.color]="q.color">{{ prod.share }}%</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ══ REVENUE TIMELINE ═════════════════════════════════════════════════════ -->
+  <div class="sec-label">Revenue timeline — all years<span class="sec-badge sec-badge--amber" style="margin-left:8px">{{ fullRange }}</span></div>
+  <div class="chart-card">
+    <div class="chart-meta">
+      <div>
+        <div class="chart-title">Total monthly revenue (KWD)</div>
+        <div class="chart-sub">Full historical series · orange line = 3-month moving average</div>
+      </div>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-sq" style="background:#AFA9EC"></span>Monthly KWD</span>
+        <span class="legend-item"><span class="legend-line" style="background:#D85A30"></span>3-mo avg</span>
+      </div>
+    </div>
+    <div class="canvas-box canvas-box--lg"><canvas #growthCanvas></canvas></div>
+  </div>
+
+  <!-- ══ SEGMENT LINE + STACKED BAR ══════════════════════════════════════════ -->
+  <div class="sec-label">Segment spend · {{ recentRange }}</div>
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="chart-meta">
+        <div>
+          <div class="chart-title">Avg spend per customer by month</div>
+          <div class="chart-sub">KWD / customer · {{ recentYear }}</div>
+        </div>
+        <span class="sec-badge sec-badge--purple">KWD/cust</span>
+      </div>
+      <div class="legend-row">
+        @for (s of data.segments(); track s.id) {
+          <span class="legend-item">
+            <span class="legend-sq" [style.background]="s.color"></span>
+            {{ s.icon }} {{ s.name }}
+          </span>
+        }
+      </div>
+      <div class="canvas-box"><canvas #lineCanvas></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-meta">
+        <div>
+          <div class="chart-title">Total revenue by month</div>
+          <div class="chart-sub">KWD total · last 14 months</div>
+        </div>
+        <span class="sec-badge sec-badge--teal">KWD total</span>
+      </div>
+      <div class="canvas-box"><canvas #barCanvas></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ PEAKS & TROUGHS ══════════════════════════════════════════════════════ -->
+  <div class="sec-label">Peaks &amp; troughs by segment</div>
+  <div class="peak-grid">
+    @for (s of data.segments(); track s.id) {
+      <div class="peak-card">
+        <div class="peak-card-hdr">
+          <span class="peak-dot" [style.background]="s.color"></span>
+          <span class="peak-seg-name" [style.color]="s.color">{{ s.icon }} {{ s.name }}</span>
+          <span class="var-badge" [style.background]="getVarBg(s.id)" [style.color]="getVarColor(s.id)">
+            {{ getSeasonalityVariance(s.id) }}
+          </span>
+        </div>
+        <div class="peak-row">
+          <div class="peak-half">
+            <div class="peak-half-lbl">Peak month</div>
+            <div class="peak-month" style="color:#0F6E56">{{ getSegPeak(s.id).month }}</div>
+            <div class="peak-val">{{ getSegPeak(s.id).rev }} KWD</div>
+          </div>
+          <div class="peak-divider"></div>
+          <div class="peak-half">
+            <div class="peak-half-lbl">Trough month</div>
+            <div class="peak-month" style="color:#A32D2D">{{ getSegTrough(s.id).month }}</div>
+            <div class="peak-val">{{ getSegTrough(s.id).rev }} KWD</div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ══ YOY DELTA ════════════════════════════════════════════════════════════ -->
+  <div class="sec-label">Year-over-year delta</div>
+  <div class="chart-card">
+    <div class="chart-meta">
+      <div>
+        <div class="chart-title">Monthly YoY delta (%)</div>
+        <div class="chart-sub">{{ prevYear }} → {{ currYear }} · % change vs same month prior year</div>
+      </div>
+    </div>
+    <div class="yoy-legend">
+      <span class="legend-sq" style="background:#1D9E75"></span>Growth
+      <span class="legend-sq" style="background:#E24B4A;margin-left:10px"></span>Decline
+    </div>
+    <div class="canvas-box"><canvas #slopeCanvas></canvas></div>
+  </div>
+
+  <!-- ══ FORMULA BOX ═══════════════════════════════════════════════════════════ -->
+  <div class="sec-label">Feature engineering formulas</div>
+  <div class="fn-card">
+    <div class="fn-row"><code>peak_month</code><span>Month with highest avg spend for this customer (integer 1–12)</span></div>
+    <div class="fn-row"><code>q1_share</code><span>Σ spend(Jan–Mar) / total_spend ∈ [0, 1]</span></div>
+    <div class="fn-row"><code>q2_share</code><span>Σ spend(Apr–Jun) / total_spend ∈ [0, 1]</span></div>
+    <div class="fn-row"><code>q3_share</code><span>Σ spend(Jul–Sep) / total_spend ∈ [0, 1]</span></div>
+    <div class="fn-row"><code>q4_share</code><span>Σ spend(Oct–Dec) / total_spend = 1 − q1 − q2 − q3</span></div>
+    <div class="fn-row"><code>monthly_revenue</code><span>Σ net_kwd grouped by YYYY-MM across all customers</span></div>
+    <div class="fn-row"><code>seasonality_var</code><span>std(monthly_avg) / mean(monthly_avg) — coefficient of variation</span></div>
+    <div class="fn-row fn-row--last"><code>yoy_growth</code><span>(Σ last 12 mo revenue − Σ prev 12 mo) / Σ prev 12 mo</span></div>
+  </div>
+
+</div>

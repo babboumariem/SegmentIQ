@@ -1,0 +1,305 @@
+/* ── Base ────────────────────────────────────────────── */
+    .rep {
+      padding: 24px 28px 64px;
+      animation: fadeUp .4s ease both;
+      max-width: 1700px;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px) }
+      to   { opacity:1; transform:none }
+    }
+
+    /* ── Header Band ─────────────────────────────────────── */
+    .rep-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--bd);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .rh-eyebrow {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .2em;
+      color: var(--am);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .rh-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--tx);
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .rh-sub {
+      font-size: 11.5px;
+      color: var(--t3);
+      margin-top: 4px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .rh-freshness {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      color: var(--t4);
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(5,150,105,.07);
+      border: 1px solid rgba(5,150,105,.15);
+      border-radius: 20px;
+      padding: 2px 10px;
+    }
+    .freshness-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #059669;
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+    .rh-right { display: flex; align-items: center; gap: 10px; }
+
+    .export-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px;
+      background: var(--am); color: #fff;
+      border-radius: 10px; font-size: 12px; font-weight: 700;
+      text-decoration: none; transition: .15s;
+      box-shadow: 0 2px 10px rgba(224,120,32,.3);
+      border: none; cursor: pointer; font-family: inherit;
+    }
+    .export-btn:hover { background: #c06010; transform: translateY(-1px); }
+    .export-btn:disabled { opacity: .55; cursor: wait; transform: none; }
+
+    .pdf-btn { background: #1e40af; box-shadow: 0 2px 10px rgba(30,64,175,.3); }
+    .pdf-btn:hover { background: #1e3a8a; }
+
+    /* ── KPI Strip ───────────────────────────────────────── */
+    .rep-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .rk {
+      background: var(--card);
+      border: 1.5px solid var(--bd);
+      border-radius: 16px;
+      padding: 16px 18px 14px;
+      box-shadow: var(--sh);
+      transition: transform .2s, box-shadow .2s;
+      overflow: hidden;
+      position: relative;
+    }
+    .rk::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--kc);
+      border-radius: 16px 16px 0 0;
+    }
+    .rk:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.1); }
+    .rk-top {
+      display: flex; align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .rk-icon-wrap {
+      width: 40px; height: 40px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .rk-trend {
+      font-size: 13px; font-weight: 700; letter-spacing: .03em;
+      color: var(--t3); text-transform: uppercase;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .rk-trend.up   { color: #059669; }
+    .rk-trend.down { color: #dc2626; }
+    .rk-val {
+      font-size: 32px; font-weight: 900;
+      color: var(--tx);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -.04em; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .rk-unit { font-size: 14px; font-weight: 600; color: var(--t3); margin-left: 4px; }
+    .rk-lbl {
+      font-size: 13px; color: var(--t2);
+      text-transform: uppercase; letter-spacing: .06em;
+      font-weight: 800; margin-bottom: 6px;
+    }
+    .rk-sub-note {
+      font-size: 10px; color: var(--t4);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .rk-bar {
+      height: 4px; background: var(--bg2);
+      border-radius: 2px; overflow: hidden;
+    }
+    .rk-bar-fill { height: 100%; border-radius: 2px; opacity: .8; }
+
+    /* ── Sections ────────────────────────────────────────── */
+    .rep-section {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: var(--sh);
+      margin-bottom: 10px;
+    }
+    .rs-title {
+      font-size: 16px; font-weight: 800;
+      color: var(--tx); letter-spacing: -.02em;
+    }
+    .rs-sub { font-size: 11px; color: var(--t3); margin-top: 3px; }
+
+    /* ── Section Divider ─────────────────────────────────── */
+    .section-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0 12px;
+    }
+    .sd-line { flex: 1; height: 1px; background: var(--bd); }
+    .sd-text {
+      font-size: 8.5px; font-weight: 800; letter-spacing: .2em;
+      color: var(--t4); white-space: nowrap;
+      text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Charts Row ──────────────────────────────────────── */
+    .rep-charts {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 12px; margin-bottom: 10px;
+    }
+    .rc {
+      background: var(--card); border: 1px solid var(--bd);
+      border-radius: 14px; padding: 18px;
+      box-shadow: var(--sh); transition: transform .2s;
+      box-sizing: border-box;
+    }
+    .rc:hover { transform: translateY(-2px); }
+    .rc-title-wrap { display: flex; align-items: center; gap: 10px; }
+    .rc-accent { width: 3px; height: 30px; border-radius: 2px; flex-shrink: 0; }
+    .rc-head { margin-bottom: 12px; }
+    .rc-title { font-size: 13px; font-weight: 800; color: var(--tx); }
+    .rc-sub { font-size: 9.5px; color: var(--t4); margin-top: 2px; }
+    .rc-body { position: relative; width: 100%; height: 260px; }
+    .rc-body canvas { width: 100% !important; height: 100% !important; display: block; }
+
+    /* ── 2-col layout ────────────────────────────────────── */
+    .rep-2col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 14px;
+      align-items: stretch;
+    }
+    .rep-2col .rep-section {
+      height: 100%; box-sizing: border-box; min-height: 0;
+    }
+    .rep-2col .rs-panel {
+      display: flex; flex-direction: column;
+    }
+    .rep-2col .rs-rows {
+      flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+    }
+
+    /* ── Revenue Share / Category ─────────────────────────── */
+    .rs-panel { padding: 24px 26px; }
+    .rs-head {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px;
+      margin-bottom: 22px;
+    }
+    .rs-head-left { display: flex; flex-direction: column; gap: 4px; }
+    .rs-total-badge {
+      font-size: 11px; font-weight: 700;
+      color: var(--am); background: rgba(224,120,32,.1);
+      border: 1px solid rgba(224,120,32,.2);
+      border-radius: 20px; padding: 5px 13px;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap; align-self: flex-start;
+    }
+    .rs-rows { display: flex; flex-direction: column; gap: 0; }
+    .rs-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 9px 0; border-bottom: 1px solid var(--bd);
+      flex: 1; min-height: 44px;
+    }
+    .rs-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .rs-row:first-child { padding-top: 0; }
+    .rs-seg-label { width: 130px; min-width: 130px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+    .rs-bar-wrap { flex: 1; min-width: 0; display: flex; align-items: center; }
+    .rs-row-val { width: 100px; min-width: 100px; flex-shrink: 0; }
+    .rs-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .rs-icon { font-size: 14px; flex-shrink: 0; }
+    .rs-seg-name {
+      font-size: 13px; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rs-rank-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--bg2); color: var(--t3);
+      font-size: 11px; font-weight: 700;
+      font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+    }
+    .rs-bar-track {
+      width: 100%; height: 10px;
+      background: var(--bg2); border-radius: 5px; overflow: hidden;
+    }
+    .rs-bar-fill {
+      height: 100%; border-radius: 5px;
+      transition: width 1.2s cubic-bezier(.25,1,.5,1);
+    }
+    .rs-row-val {
+      display: flex; align-items: baseline; gap: 6px;
+      justify-content: flex-end;
+    }
+    .rs-val-amount {
+      font-size: 13.5px; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .rs-val-pct {
+      font-size: 11px; color: var(--t4); font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 1200px) {
+      .rep-kpis     { grid-template-columns: repeat(3, 1fr); }
+      .rep-charts   { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 800px) {
+      .rep { padding: 14px 16px 48px; }
+      .rep-kpis, .rep-2col { grid-template-columns: 1fr; }
+      .rep-charts { grid-template-columns: 1fr; }
+      .rh-title { font-size: 20px; }
+    }
+
+    /* ── Print / PDF ─────────────────────────────────────── */
+    @media print {
+      .rep { padding: 0; animation: none; }
+      .rh-right { display: none; }
+      .rep-kpis  { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .rep-charts { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .rep-2col  { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .rk, .rc, .rep-section { box-shadow: none; break-inside: avoid; }
+      .rk:hover, .rc:hover { transform: none; }
+      .section-divider { margin: 10px 0 6px; }
+    }
